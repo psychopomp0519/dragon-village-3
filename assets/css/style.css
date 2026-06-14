@@ -331,10 +331,10 @@ select:focus{outline:none;border-color:var(--accent)}
 .type-matrix{min-width:760px;text-align:center}
 .type-matrix th{padding:6px 4px;text-align:center}
 .type-matrix th.corner{font-size:11px;color:var(--muted);white-space:nowrap}
-.type-matrix th.rowh{position:sticky;left:0;background:var(--panel2);z-index:2}
+.type-matrix th.rowh{position:sticky;left:0;top:auto;background:var(--panel2);z-index:2}
 .type-matrix td.tcell{padding:0;width:34px;height:34px;font-weight:900;font-size:14px;
-  border:1px solid var(--bg);vertical-align:middle}
-.tcell{display:inline-flex;align-items:center;justify-content:center}
+  border:1px solid var(--bg);vertical-align:middle;text-align:center}
+.type-legend .tcell{display:inline-flex;align-items:center;justify-content:center}
 .tcell.strong{background:rgba(51,214,192,.22);color:var(--accent2)}
 .tcell.weak{background:rgba(255,160,90,.18);color:#ffb070}
 .tcell.veryweak{background:rgba(255,76,108,.22);color:#ff6b8a}
