@@ -16,7 +16,7 @@ const state = {
   dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:"",owned:""},
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
   abilities:{search:""},
-  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null,pickup:[],pickupEdit:false},
+  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null,pickup:[],pickupEdit:false,barracks:3},
   types:{focus:""}
 };
 
@@ -493,7 +493,33 @@ function renderBreedTarget(){
     html+=`</div>`;
   }
 
+  // 4) n배럭 조합기 (1~2마리 노리기)
+  if(s.targets.length>=1 && s.targets.length<=2){
+    const n=s.barracks;
+    const plan=Breed.barracks(s.targets,n,pool,s.level);
+    const opts=[2,3,4,5,6].map(v=>`<option value="${v}"${v===n?' selected':''}>${v}배럭</option>`).join("");
+    html+=`<div class="breed-sec"><h3>n배럭 조합기 <small>부모가 겹치지 않는 여러 배럭으로 ${s.targets.length===1?'한 마리':'두 마리'} 동시에 노리기</small>
+      <select id="brk-n" class="brk-sel">${opts}</select></h3>`;
+    const anyPick = plan.perTarget.some(pt=>pt.picks.length);
+    if(!anyPick){
+      html+=`<div class="sim-banner warn">⚠️ 보유 부모로 만들 수 있는 조합이 없어 배럭을 채울 수 없습니다.</div>`;
+    } else {
+      html+=plan.perTarget.map(pt=>{
+        const d=Breed.byId(pt.target);
+        if(!pt.picks.length) return `<div class="breed-card no"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">배정할 서로소 조합이 없습니다</span></div></div>`;
+        const rounds = pt.successPct>0 ? Math.round(100/pt.successPct) : 0;
+        return `<div class="breed-card">
+          <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${pt.barracks}배럭 사용 · 한 라운드에 1마리+ 얻을 확률 <b>${pt.successPct.toFixed(2)}%</b> · 기대 ${rounds}라운드</span></div>
+          <div class="bc-list">${pt.picks.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,pt.target)).join("")}</div>
+        </div>`;
+      }).join("");
+      if(plan.used<n) html+=`<p class="bc-meta">※ 서로 겹치지 않는 부모로 ${plan.used}배럭까지만 구성됩니다(보유 부모 부족).</p>`;
+    }
+    html+=`</div>`;
+  }
+
   box.innerHTML=html;
+  const bn=$("#brk-n"); if(bn) bn.onchange=e=>{ s.barracks=+e.target.value; renderBreedTarget(); };
 }
 
 function renderPickup(){

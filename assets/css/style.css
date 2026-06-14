@@ -383,3 +383,8 @@ select:focus{outline:none;border-color:var(--accent)}
 .cp-targets{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .cp-t{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:12px}
 .cp-t b{color:var(--gold);margin-left:3px}
+
+/* n배럭 조합기 */
+.brk-sel{margin-left:10px;background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:4px 8px;font-size:12px;font-family:inherit;font-weight:700;vertical-align:middle}
+.breed-sec>h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px}

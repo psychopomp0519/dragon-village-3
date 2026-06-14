@@ -169,6 +169,40 @@ const Breed = (() => {
     return { pairs: limit ? out.slice(0, limit) : out, n: tset.length, maxCount, impossible };
   };
 
+  /* ---- n배럭 조합기: 부모가 겹치지 않는 n개 배럭으로 1~2마리 노리기 ----
+   * 그리디: 매 배럭마다 '기대 성공 증가분(failProb_t × p)'이 최대인 타깃·조합 선택.
+   * 1마리면 확률 높은 서로소 조합 n개, 2마리면 두 타깃에 자동 배분.
+   * 반환: { perTarget:[{target,picks:[{a,b,p,ft}],successPct,barracks}], used, requested }
+   */
+  const barracks = (targetIds, n, parentIds, userLevel) => {
+    const cand = {};
+    for (const t of targetIds) cand[t] = combosForTarget(t, parentIds, userLevel);
+    const used = new Set(), failP = {};
+    for (const t of targetIds) failP[t] = 1;
+    const picks = [];
+    for (let step = 0; step < n; step++) {
+      let best = null, bestGain = -1;
+      for (const t of targetIds) {
+        for (const c of cand[t]) {
+          if (used.has(c.a) || used.has(c.b)) continue;
+          const gain = failP[t] * (c.p / 100);
+          if (gain > bestGain) { bestGain = gain; best = { t, c }; }
+          break;                                  // cand 내림차순 → 첫 비충돌이 그 타깃 최선
+        }
+      }
+      if (!best || bestGain <= 0) break;
+      used.add(best.c.a); used.add(best.c.b);
+      failP[best.t] *= (1 - best.c.p / 100);
+      picks.push({ target: best.t, a: best.c.a, b: best.c.b, p: best.c.p, ft: best.c.ft });
+    }
+    const perTarget = targetIds.map(t => {
+      const ps = picks.filter(x => x.target === t);
+      const success = (1 - ps.reduce((m, x) => m * (1 - x.p / 100), 1)) * 100;
+      return { target: t, picks: ps, successPct: success, barracks: ps.length };
+    });
+    return { perTarget, used: picks.length, requested: n };
+  };
+
   /* ---- 보유분으로 직접 못 만들 때: 최적 교배 순서(루트) ----
    * startIds 에서 출발, 새로 만들 수 있는 드래곤을 부모로 추가하며 BFS 폐포.
    * 반환: 의존성 순서의 steps[{result,a,b,p}] 또는 null(도달 불가)
@@ -213,7 +247,7 @@ const Breed = (() => {
 
   return { load, breed, failTime, expect, comboKeys, eligible,
            rareIds, ownedIdSet, parentPool, combosForTarget,
-           commonPairs, route, all, byId, byName, TIER_MAX,
+           commonPairs, barracks, route, all, byId, byName, TIER_MAX,
            setPickup, getPickupNames, isPickup };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = Breed;
