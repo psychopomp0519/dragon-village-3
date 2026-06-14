@@ -13,7 +13,7 @@ const elColor = e => ELEMENT_COLORS[e] || "#7c6cff";
 /* ===== 상태 ===== */
 const DB = {};
 const state = {
-  dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:""},
+  dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:"",owned:""},
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
   abilities:{search:""}
 };
@@ -77,6 +77,8 @@ function renderDragons(){
     if(s.attack && d.attackType!==s.attack) return false;
     if(s.source && d.source!==s.source) return false;
     if(s.element && d.element!==s.element && !d.subElements.includes(s.element)) return false;
+    if(s.owned==="own" && !Store.has(d.name)) return false;
+    if(s.owned==="miss" && Store.has(d.name)) return false;
     if(s.search){
       const q=s.search.toLowerCase();
       const hay=[d.name,d.element,...d.subElements,d.ability,d.abilityEffect,d.ultimate,d.basicAttack,d.ultimateEffect,d.source].join(" ").toLowerCase();
@@ -97,7 +99,9 @@ function renderDragons(){
       const v=d.stats[k]||0,pct=Math.min(100,v/maxStat*100);
       return `<div class="statbar"><span class="lbl">${STAT_LABELS[k]}</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span class="val">${v}</span></div>`;
     }).join("");
-    return `<div class="dcard" style="--el:${elColor(d.element)}" data-name="${esc(d.name)}">
+    const own=Store.has(d.name);
+    return `<div class="dcard${own?' is-owned':''}" style="--el:${elColor(d.element)}" data-name="${esc(d.name)}">
+      <button class="own-toggle${own?' owned':''}" data-own="${esc(d.name)}" title="${own?'보유 해제':'보유로 표시'}" aria-pressed="${own}">${own?'★':'☆'}</button>
       <div class="dcard-top">
         <div>
           <div class="dcard-name">${esc(d.name)}</div>
@@ -111,6 +115,10 @@ function renderDragons(){
   }).join("") || `<p class="result-count">조건에 맞는 드래곤이 없습니다.</p>`;
 
   $$("#dragon-grid .dcard").forEach(c=>c.onclick=()=>openDragon(c.dataset.name));
+  $$("#dragon-grid .own-toggle").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    Store.toggle(b.dataset.own);
+  });
 }
 
 function openDragon(name){
@@ -123,6 +131,7 @@ function openDragon(name){
   $("#modal-body").innerHTML=`
     <div class="m-head"><div class="m-name">${esc(d.name)}</div></div>
     <div class="m-tags">${elBadge(d.element)}${subs}${gradeBadge(d.grade)}<span class="badge badge-atk">${esc(d.attackType)} 공격형</span></div>
+    <button class="btn m-own-btn${Store.has(d.name)?' owned':''}" id="m-own" data-name="${esc(d.name)}">${Store.has(d.name)?'★ 보유 중 — 해제':'☆ 보유로 표시'}</button>
     <div class="m-total"><b>${d.total}</b><span>Lv.50 · 5성 기준 능력치 합계</span></div>
     <div class="m-section"><h4>능력치</h4><div class="m-stats statbars">${stats}</div></div>
     <div class="m-section"><h4>특성 (어빌리티)</h4>
@@ -134,6 +143,7 @@ function openDragon(name){
           <div class="d">${esc(d.ultimateEffect)}<br><small>명중 ${esc(d.accuracy)} / 위력 ${esc(d.power)}</small></div></div>
       </div></div>
     <div class="m-section"><h4>획득처</h4><div class="m-row"><div class="d">${esc(d.source)}</div></div></div>`;
+  $("#m-own").onclick=()=>{ Store.toggle(d.name); openDragon(d.name); };
   openModal();
 }
 
@@ -210,6 +220,112 @@ function renderCodex(){
   $("#notes-list").innerHTML=[...new Set(notes)].map(n=>`<li>${esc(n)}</li>`).join("");
 }
 
+/* ====================== COLLECTION ====================== */
+function renderCollection(){
+  const all=DB.dragons, owned=all.filter(d=>Store.has(d.name));
+  const n=owned.length, total=all.length, pct=total?Math.round(n/total*100):0;
+  $("#cnt-owned").textContent=n;
+
+  const cloud=Store.isCloud(), configured=Store.isConfigured();
+  let loginNote="";
+  if(cloud){
+    loginNote=`<span class="sub">☁️ ${esc(Store.getUser().email)} 계정에 클라우드 저장 중 · 어느 기기에서나 동기화됩니다.</span>`;
+  } else if(configured){
+    loginNote=`<span class="sub">현재 이 브라우저에만 저장됩니다. <a href="#" id="coll-login">로그인</a>하면 클라우드에 저장돼 기기 간 동기화됩니다.</span>`;
+  } else {
+    loginNote=`<span class="sub">이 브라우저(localStorage)에 저장됩니다. Supabase 설정 시 로그인·동기화가 켜집니다.</span>`;
+  }
+
+  // 등급별 / 속성별 분해
+  const grades=[...new Set(all.map(d=>d.grade))];
+  const gradeRows=grades.map(g=>{
+    const t=all.filter(d=>d.grade===g).length, o=owned.filter(d=>d.grade===g).length;
+    return brkRow(g,o,t,gradeColorVar(g));
+  }).join("");
+  const elRows=ELEMENT_ORDER.filter(e=>all.some(d=>d.element===e)).map(e=>{
+    const t=all.filter(d=>d.element===e).length, o=owned.filter(d=>d.element===e).length;
+    return brkRow(`<span class="badge badge-el" style="background:${elColor(e)}">${e}</span>`,o,t,elColor(e));
+  }).join("");
+
+  $("#collection-body").innerHTML=`
+    <div class="coll-hero">
+      <h2>내 드래곤 컬렉션</h2>
+      ${loginNote}
+      <div class="coll-big"><b>${n}</b><span>/ ${total}종 보유 · 도감 달성 ${pct}%</span></div>
+      <div class="coll-prog"><span class="fill" style="width:${pct}%"></span></div>
+    </div>
+    <div class="coll-cards">
+      <div class="coll-stat"><div class="k">보유</div><div class="v" style="color:var(--gold)">${n}</div></div>
+      <div class="coll-stat"><div class="k">미보유</div><div class="v">${total-n}</div></div>
+      <div class="coll-stat"><div class="k">달성률</div><div class="v">${pct}%</div></div>
+    </div>
+    <div class="coll-break">
+      <h3>등급별 보유</h3>${gradeRows}
+      <h3>속성별 보유</h3>${elRows}
+    </div>
+    ${n?`<div style="margin-top:22px"><button class="btn btn-sm" id="coll-goto">드래곤 도감에서 '보유만' 보기</button>
+        <button class="btn btn-sm" id="coll-clear" style="margin-left:8px">전체 보유 초기화</button></div>`:
+      `<div class="coll-empty">아직 보유로 표시한 드래곤이 없습니다.<br>드래곤 카드의 ☆ 버튼을 눌러 보유 현황을 기록해 보세요.
+        <br><button class="btn" id="coll-goto2">드래곤 도감으로</button></div>`}
+  `;
+  const goDragons=()=>{$$("#tabs .tab").forEach(x=>x.classList.remove("active"));$$(".view").forEach(v=>v.classList.remove("active"));
+    document.querySelector('#tabs .tab[data-view="dragons"]').classList.add("active");$("#view-dragons").classList.add("active");window.scrollTo({top:0});};
+  const gt=$("#coll-goto"); if(gt) gt.onclick=()=>{state.dragons.owned="own";$("#dragon-owned").value="own";renderDragons();goDragons();};
+  const gt2=$("#coll-goto2"); if(gt2) gt2.onclick=goDragons;
+  const cl=$("#coll-clear"); if(cl) cl.onclick=()=>{ if(confirm("모든 보유 표시를 해제할까요?")) Store.clearAll(); };
+  const lg=$("#coll-login"); if(lg) lg.onclick=e=>{e.preventDefault();openAuth();};
+}
+function brkRow(label,o,t,color){
+  const pct=t?o/t*100:0;
+  return `<div class="brk-row"><span class="nm">${label}</span>
+    <span class="track"><span class="fill" style="width:${pct}%;background:${color}"></span></span>
+    <span class="num">${o} / ${t}</span></div>`;
+}
+function gradeColorVar(g){return ({"전설":"var(--legend)","영웅":"var(--hero)","희귀":"var(--rare)"})[g]||"var(--accent)";}
+
+/* ====================== AUTH UI ====================== */
+function renderAuthBox(){
+  const box=$("#auth-box");
+  if(Store.isCloud()){
+    box.innerHTML=`<span class="user-email">${esc(Store.getUser().email)}</span><button class="btn btn-sm" id="btn-logout">로그아웃</button>`;
+    $("#btn-logout").onclick=()=>Store.signOut();
+  } else if(Store.isConfigured()){
+    box.innerHTML=`<button class="btn btn-sm btn-primary" id="btn-login">로그인</button>`;
+    $("#btn-login").onclick=openAuth;
+  } else {
+    box.innerHTML=`<span class="guest-chip" title="config.js에 Supabase 키를 넣으면 로그인이 켜집니다">게스트 · 로컬 저장</span>`;
+  }
+}
+function openAuth(){ $("#auth-msg").textContent=""; $("#auth-modal").hidden=false; document.body.style.overflow="hidden"; }
+function closeAuth(){ $("#auth-modal").hidden=true; document.body.style.overflow=""; }
+function authMsg(t,err){ const m=$("#auth-msg"); m.textContent=t; m.classList.toggle("err",!!err); }
+
+function bindAuth(){
+  $("#auth-close").onclick=closeAuth;
+  $("#auth-modal").addEventListener("click",e=>{if(e.target.id==="auth-modal")closeAuth();});
+  $("#auth-form").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const email=$("#auth-email").value.trim(), pw=$("#auth-password").value;
+    authMsg("로그인 중…");
+    const { error }=await Store.signIn(email,pw);
+    if(error) authMsg(error.message,true); else closeAuth();
+  });
+  $("#auth-signup").onclick=async()=>{
+    const email=$("#auth-email").value.trim(), pw=$("#auth-password").value;
+    if(!email||pw.length<6){authMsg("이메일과 6자 이상 비밀번호를 입력하세요.",true);return;}
+    authMsg("가입 중…");
+    const { data, error }=await Store.signUp(email,pw);
+    if(error) authMsg(error.message,true);
+    else if(data.session) closeAuth();
+    else authMsg("확인 메일을 보냈습니다. 메일의 링크를 눌러 인증을 완료하세요.");
+  };
+  $("#auth-google").onclick=async()=>{
+    authMsg("Google 로그인으로 이동…");
+    const { error }=await Store.signInGoogle();
+    if(error) authMsg(error.message,true);
+  };
+}
+
 /* ===== MODAL ===== */
 function openModal(){$("#modal").hidden=false;document.body.style.overflow="hidden";}
 function closeModal(){$("#modal").hidden=true;document.body.style.overflow="";}
@@ -218,6 +334,7 @@ function closeModal(){$("#modal").hidden=true;document.body.style.overflow="";}
 function bind(){
   const d=state.dragons;
   $("#dragon-search").addEventListener("input",e=>{d.search=e.target.value;renderDragons();});
+  $("#dragon-owned").addEventListener("change",e=>{d.owned=e.target.value;renderDragons();});
   $("#dragon-grade").addEventListener("change",e=>{d.grade=e.target.value;renderDragons();});
   $("#dragon-attack").addEventListener("change",e=>{d.attack=e.target.value;renderDragons();});
   $("#dragon-source").addEventListener("change",e=>{d.source=e.target.value;renderDragons();});
@@ -247,7 +364,12 @@ async function init(){
       <code style="color:var(--accent2)">python3 -m http.server</code> 실행 후 <code>localhost:8000</code> 접속</p></div>`;
     return;
   }
-  initTabs(); bind();
+  initTabs(); bind(); bindAuth();
+
+  // 저장소(인증·보유현황) 초기화 + 변경 반영
+  await Store.init();
+  Store.on("change",()=>{ renderDragons(); renderCollection(); });
+  Store.on("auth",()=>{ renderAuthBox(); renderCollection(); });
 
   // 카운트
   $("#cnt-dragons").textContent=DB.dragons.length;
@@ -265,6 +387,7 @@ async function init(){
   buildElementChips("#dragon-elements",dEls,()=>state.dragons.element,v=>{state.dragons.element=v;renderDragons();});
   buildElementChips("#orb-elements",oEls,()=>state.orbs.element,v=>{state.orbs.element=v;renderOrbs();});
 
-  renderDragons(); renderOrbs(); renderAbilities(); renderCodex();
+  renderAuthBox();
+  renderDragons(); renderOrbs(); renderAbilities(); renderCodex(); renderCollection();
 }
 document.addEventListener("DOMContentLoaded",init);

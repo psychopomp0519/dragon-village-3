@@ -141,9 +141,67 @@ select:focus{outline:none;border-color:var(--accent)}
 .m-row .d{font-size:13px}
 .m-row .d small{color:var(--muted)}
 
+/* AUTH BOX (header) */
+.auth-box{display:flex;align-items:center;gap:8px;font-size:13px}
+.auth-box .user-email{color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{background:var(--panel);border:1px solid var(--line);color:var(--text);
+  padding:8px 14px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn:hover{border-color:var(--accent)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#5a4fd6);border-color:transparent;color:#fff}
+.btn-google{background:#fff;color:#222;border-color:#fff;width:100%}
+.btn-sm{padding:6px 11px;font-size:13px}
+.guest-chip{color:var(--muted);font-size:12px;border:1px dashed var(--line);padding:6px 11px;border-radius:999px}
+
+/* OWNERSHIP TOGGLE on dragon cards */
+.dcard{padding-top:16px}
+.own-toggle{position:absolute;top:10px;right:10px;z-index:2;width:30px;height:30px;border-radius:50%;
+  background:var(--bg2);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;transition:.15s;line-height:1}
+.own-toggle:hover{border-color:var(--gold);color:var(--gold)}
+.own-toggle.owned{background:var(--gold);border-color:var(--gold);color:#3a2c00}
+.dcard.is-owned{border-color:rgba(255,207,92,.5)}
+.dcard.is-owned::after{content:"보유";position:absolute;bottom:0;right:0;background:var(--gold);color:#3a2c00;
+  font-size:10px;font-weight:900;padding:2px 8px;border-radius:8px 0 0 0}
+.dcard-total{margin-right:34px}
+.m-own-btn{width:100%;margin-top:6px}
+.m-own-btn.owned{background:var(--gold);border-color:var(--gold);color:#3a2c00}
+
+/* AUTH MODAL */
+.modal-sm{max-width:400px}
+.auth-title{font-size:22px;font-weight:900;margin-bottom:6px}
+.auth-sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+.auth-form{display:grid;gap:11px}
+.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.auth-msg{font-size:13px;min-height:18px;color:var(--accent2)}
+.auth-msg.err{color:#ff7a7a}
+
+/* COLLECTION VIEW */
+.coll-hero{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:22px}
+.coll-hero h2{font-size:20px;margin-bottom:4px}
+.coll-hero .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.coll-big{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.coll-big b{font-size:42px;color:var(--gold);font-weight:900;line-height:1}
+.coll-big span{color:var(--muted)}
+.coll-prog{height:12px;background:var(--bg2);border-radius:8px;overflow:hidden}
+.coll-prog .fill{height:100%;background:linear-gradient(90deg,var(--gold),#ff9d4a);border-radius:8px;transition:width .4s}
+.coll-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.coll-stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.coll-stat .k{color:var(--muted);font-size:12px}
+.coll-stat .v{font-size:24px;font-weight:900;margin-top:3px}
+.coll-break h3{font-size:16px;margin:18px 0 11px;padding-left:10px;border-left:3px solid var(--accent)}
+.brk-row{display:grid;grid-template-columns:70px 1fr 64px;align-items:center;gap:12px;margin-bottom:7px;font-size:13px}
+.brk-row .nm{display:flex;align-items:center;gap:6px}
+.brk-row .track{height:9px;background:var(--bg2);border-radius:6px;overflow:hidden}
+.brk-row .fill{height:100%;border-radius:6px}
+.brk-row .num{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.coll-empty{text-align:center;color:var(--muted);padding:40px 20px}
+.coll-empty .btn{margin-top:14px}
+
 @media(max-width:640px){
   .logo{font-size:18px}
   .tab{padding:7px 11px;font-size:13px}
   .m-name{font-size:22px}
   .modal{padding:20px}
+  .header-inner{gap:10px}
+  .auth-box .user-email{max-width:110px}
 }

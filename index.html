@@ -18,8 +18,10 @@
       <button class="tab active" data-view="dragons">드래곤 <em id="cnt-dragons">0</em></button>
       <button class="tab" data-view="orbs">보주 <em id="cnt-orbs">0</em></button>
       <button class="tab" data-view="abilities">특성 <em id="cnt-abilities">0</em></button>
+      <button class="tab" data-view="collection">내 컬렉션 <em id="cnt-owned">0</em></button>
       <button class="tab" data-view="codex">요약 · 용어</button>
     </nav>
+    <div class="auth-box" id="auth-box"></div>
   </div>
 </header>
 
@@ -30,6 +32,7 @@
     <div class="toolbar">
       <input type="search" id="dragon-search" class="search" placeholder="이름 · 속성 · 특성 · 스킬 검색…" autocomplete="off">
       <div class="selects">
+        <select id="dragon-owned"><option value="">전체 보유</option><option value="own">보유만</option><option value="miss">미보유만</option></select>
         <select id="dragon-grade"><option value="">전체 등급</option></select>
         <select id="dragon-attack"><option value="">물리/마법</option><option value="물리">물리</option><option value="마법">마법</option></select>
         <select id="dragon-source"><option value="">전체 획득처</option></select>
@@ -86,6 +89,11 @@
     <div class="ability-grid" id="ability-grid"></div>
   </section>
 
+  <!-- ============ COLLECTION ============ -->
+  <section id="view-collection" class="view">
+    <div id="collection-body"></div>
+  </section>
+
   <!-- ============ CODEX ============ -->
   <section id="view-codex" class="view">
     <div class="codex-block">
@@ -115,6 +123,25 @@
   </div>
 </div>
 
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="auth-modal" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <button class="modal-close" id="auth-close" aria-label="닫기">✕</button>
+    <h2 class="auth-title">로그인 / 회원가입</h2>
+    <p class="auth-sub">로그인하면 보유 현황이 클라우드에 저장되어 어느 기기에서나 이어집니다.</p>
+    <form id="auth-form" class="auth-form">
+      <input type="email" id="auth-email" class="search" placeholder="이메일" autocomplete="email" required>
+      <input type="password" id="auth-password" class="search" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" minlength="6" required>
+      <div class="auth-actions">
+        <button type="submit" id="auth-signin" class="btn btn-primary">로그인</button>
+        <button type="button" id="auth-signup" class="btn">회원가입</button>
+      </div>
+      <button type="button" id="auth-google" class="btn btn-google">Google 계정으로 계속</button>
+      <p class="auth-msg" id="auth-msg"></p>
+    </form>
+  </div>
+</div>
+
 <footer class="site-footer">
   <div class="wrap">
     <p>드래곤빌리지3 비공식 정보 도감 · 인게임 캡처(2026-06-14) 기반 정리</p>
@@ -122,6 +149,9 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/store.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>
