@@ -1,0 +1,3079 @@
+[
+  {
+    "element": "불",
+    "subElements": [
+      "영혼",
+      "어둠"
+    ],
+    "grade": "전설",
+    "name": "드래곤 슬레이어",
+    "attackType": "물리",
+    "total": 6546,
+    "stats": {
+      "hp": 1031,
+      "atk": 1231,
+      "def": 896,
+      "mag": 1061,
+      "res": 1431,
+      "spd": 896
+    },
+    "ability": "충동",
+    "abilityEffect": "치명타 피격 시 자신의 공격 능력치가 6단계 상승한다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "폭주",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 화상 상태인 적에게는 1.5배 피해.",
+    "source": "레이드"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "어둠",
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "헬 드래곤",
+    "attackType": "마법",
+    "total": 6301,
+    "stats": {
+      "hp": 976,
+      "atk": 966,
+      "def": 1101,
+      "mag": 1301,
+      "res": 1101,
+      "spd": 856
+    },
+    "ability": "화염투혼",
+    "abilityEffect": "체력이 1/3 이하일 때 불 속성 스킬의 피해가 1.5배로 적용된다.",
+    "basicAttack": "불의 파동",
+    "ultimate": "헬브레스",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 적의 공격 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "꿈",
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "엔투라스",
+    "attackType": "물리",
+    "total": 6299,
+    "stats": {
+      "hp": 979,
+      "atk": 1314,
+      "def": 899,
+      "mag": 1229,
+      "res": 899,
+      "spd": 979
+    },
+    "ability": "불쏘시개",
+    "abilityEffect": "피격 시 25% 확률로 상대를 화상 상태로 만든다. 불 속성 드래곤은 화상 상태가 적용되지 않는다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "코로나 폭발",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 10% 확률로 적을 화상 상태로 만들며 치명타 확률이 15% 높다.",
+    "source": "라테아의 문"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "바람",
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "주작",
+    "attackType": "마법",
+    "total": 6298,
+    "stats": {
+      "hp": 933,
+      "atk": 883,
+      "def": 908,
+      "mag": 1258,
+      "res": 1143,
+      "spd": 1173
+    },
+    "ability": "필사의 의지",
+    "abilityEffect": "체력이 최대일 때 한 번의 피격으로는 전투 불능이 되지 않고 체력이 1만 남게된다.",
+    "basicAttack": "불의 파동",
+    "ultimate": "버닝쇼크",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 적을 화상 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "포포모",
+    "attackType": "물리",
+    "total": 6047,
+    "stats": {
+      "hp": 942,
+      "atk": 1132,
+      "def": 842,
+      "mag": 1132,
+      "res": 842,
+      "spd": 1157
+    },
+    "ability": "강심장",
+    "abilityEffect": "적에 의해 자신의 공격 능력치가 하락하지 않는다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "이그니스",
+    "attackType": "물리",
+    "total": 5555,
+    "stats": {
+      "hp": 1126,
+      "atk": 1416,
+      "def": 711,
+      "mag": 550,
+      "res": 711,
+      "spd": 1041
+    },
+    "ability": "화염 증폭",
+    "abilityEffect": "불 속성 스킬에 피격 시 1번 스킬을 무효로 하고, 자신이 사용하는 불 속성 스킬의 피해가 1.5배로 적용된다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "패트로아",
+    "attackType": "마법",
+    "total": 5547,
+    "stats": {
+      "hp": 962,
+      "atk": 1062,
+      "def": 802,
+      "mag": 1127,
+      "res": 802,
+      "spd": 792
+    },
+    "ability": "일출",
+    "abilityEffect": "등장 시 날씨를 5턴 동안 맑음 상태로 변경한다.",
+    "basicAttack": "불의 파동",
+    "ultimate": "불의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 적을 화상 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "아프리트",
+    "attackType": "물리",
+    "total": 5547,
+    "stats": {
+      "hp": 882,
+      "atk": 907,
+      "def": 822,
+      "mag": 847,
+      "res": 807,
+      "spd": 1282
+    },
+    "ability": "불쏘시개",
+    "abilityEffect": "피격 시 25% 확률로 상대를 화상 상태로 만든다. 불 속성 드래곤은 화상 상태가 적용되지 않는다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "라테아의 문"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "타로스",
+    "attackType": "마법",
+    "total": 5547,
+    "stats": {
+      "hp": 962,
+      "atk": 1062,
+      "def": 802,
+      "mag": 1127,
+      "res": 802,
+      "spd": 792
+    },
+    "ability": "내성",
+    "abilityEffect": "침식 상태가 되지 않는다.",
+    "basicAttack": "불의 파동",
+    "ultimate": "불의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 적을 화상 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "불나래",
+    "attackType": "물리",
+    "total": 5547,
+    "stats": {
+      "hp": 1107,
+      "atk": 1217,
+      "def": 732,
+      "mag": 1027,
+      "res": 732,
+      "spd": 732
+    },
+    "ability": "화염투혼",
+    "abilityEffect": "체력이 1/3 이하일 때 불 속성 스킬의 피해가 1.5배로 적용된다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "피닉스 드래곤",
+    "attackType": "마법",
+    "total": 5301,
+    "stats": {
+      "hp": 806,
+      "atk": 856,
+      "def": 806,
+      "mag": 986,
+      "res": 861,
+      "spd": 986
+    },
+    "ability": "화염 증폭",
+    "abilityEffect": "불 속성 스킬에 피격 시 1번 스킬을 무효로 하고, 자신이 사용하는 불 속성 스킬의 피해가 1.5배로 적용된다.",
+    "basicAttack": "불의 파동",
+    "ultimate": "불의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 적을 화상 상태로 만든다.",
+    "source": "뽑기"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "라바 드래곤",
+    "attackType": "물리",
+    "total": 5301,
+    "stats": {
+      "hp": 751,
+      "atk": 1001,
+      "def": 686,
+      "mag": 961,
+      "res": 836,
+      "spd": 1066
+    },
+    "ability": "광분",
+    "abilityEffect": "자신에게 상태 이상이 적용된 상태에서 공격 할 때, 피해가 1.5배로 적용된다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "마그넬로",
+    "attackType": "물리",
+    "total": 5300,
+    "stats": {
+      "hp": 855,
+      "atk": 970,
+      "def": 755,
+      "mag": 970,
+      "res": 755,
+      "spd": 995
+    },
+    "ability": "포효",
+    "abilityEffect": "등장 시 적의 공격 능력치를 1단계 하락시킨다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "샴 드래곤",
+    "attackType": "물리",
+    "total": 5296,
+    "stats": {
+      "hp": 1051,
+      "atk": 1076,
+      "def": 761,
+      "mag": 886,
+      "res": 761,
+      "spd": 761
+    },
+    "ability": "인내",
+    "abilityEffect": "자신에게 상태 이상이 적용되는 동안 자신의 방어 능력치가 1.5배로 적용된다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "불",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "파이어 드래곤",
+    "attackType": "물리",
+    "total": 4798,
+    "stats": {
+      "hp": 798,
+      "atk": 1008,
+      "def": 673,
+      "mag": 968,
+      "res": 633,
+      "spd": 718
+    },
+    "ability": "냉기저항",
+    "abilityEffect": "결정 상태가 되지 않는다.",
+    "basicAttack": "불의 발톱",
+    "ultimate": "불의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "불속성 공격으로 큰 피해 + 30% 확률로 자신의 공격 1단계 상승.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "땅",
+      "빛"
+    ],
+    "grade": "전설",
+    "name": "빙하고룡",
+    "attackType": "마법",
+    "total": 6551,
+    "stats": {
+      "hp": 1096,
+      "atk": 1081,
+      "def": 1096,
+      "mag": 1166,
+      "res": 1121,
+      "spd": 991
+    },
+    "ability": "심해의 힘",
+    "abilityEffect": "체력이 1/3 이하일 때 물 속성 스킬의 피해가 1.5배로 적용된다.",
+    "basicAttack": "물의 파동",
+    "ultimate": "프로스트 웨이브",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 적의 속도 1단계 하락.",
+    "source": "뽑기"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "어둠",
+      "꿈"
+    ],
+    "grade": "전설",
+    "name": "티아매트",
+    "attackType": "마법",
+    "total": 6550,
+    "stats": {
+      "hp": 1050,
+      "atk": 1300,
+      "def": 1050,
+      "mag": 1300,
+      "res": 1050,
+      "spd": 800
+    },
+    "ability": "점막",
+    "abilityEffect": "턴 종료 시 날씨가 비 상태일 경우, 상태 이상을 회복한다.",
+    "basicAttack": "물의 파동",
+    "ultimate": "페르시온의 힘",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 결정 상태인 적에게는 1.5배 피해.",
+    "source": "레이드"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "빛",
+      "꿈"
+    ],
+    "grade": "전설",
+    "name": "파루파루",
+    "attackType": "물리",
+    "total": 6421,
+    "stats": {
+      "hp": 1001,
+      "atk": 1186,
+      "def": 1126,
+      "mag": 916,
+      "res": 1041,
+      "spd": 1151
+    },
+    "ability": "포효",
+    "abilityEffect": "등장 시 적의 공격 능력치를 1단계 하락시킨다.",
+    "basicAttack": "물의 발톱",
+    "ultimate": "기적의 격류",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 적의 공격 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "어둠"
+    ],
+    "grade": "영웅",
+    "name": "포이즌 리버",
+    "attackType": "마법",
+    "total": 6048,
+    "stats": {
+      "hp": 1048,
+      "atk": 758,
+      "def": 918,
+      "mag": 1093,
+      "res": 1298,
+      "spd": 933
+    },
+    "ability": "접촉 금지",
+    "abilityEffect": "피격 시 20% 확률로, 적에게 침식, 마비, 수면 중 하나의 상태 이상을 적용한다.",
+    "basicAttack": "물의 파동",
+    "ultimate": "물의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 저항 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "샤크곤",
+    "attackType": "물리",
+    "total": 5549,
+    "stats": {
+      "hp": 1189,
+      "atk": 1124,
+      "def": 729,
+      "mag": 854,
+      "res": 814,
+      "spd": 839
+    },
+    "ability": "태풍",
+    "abilityEffect": "비가 오는 날씨에서 자신의 속도 능력치가 2배 증가한다.",
+    "basicAttack": "물의 발톱",
+    "ultimate": "물의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 속도 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "루피아",
+    "attackType": "마법",
+    "total": 5548,
+    "stats": {
+      "hp": 883,
+      "atk": 1133,
+      "def": 883,
+      "mag": 1133,
+      "res": 883,
+      "spd": 633
+    },
+    "ability": "흡수",
+    "abilityEffect": "물 속성 스킬에 피격 시 1번 스킬을 무효로 하고, 자신의 최대 체력의 1/4만큼 자신의 체력을 회복한다.",
+    "basicAttack": "물의 파동",
+    "ultimate": "물의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 저항 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "현무",
+    "attackType": "물리",
+    "total": 5547,
+    "stats": {
+      "hp": 867,
+      "atk": 1117,
+      "def": 952,
+      "mag": 787,
+      "res": 787,
+      "spd": 1037
+    },
+    "ability": "소나기",
+    "abilityEffect": "등장 시 날씨를 5턴 동안 비 상태로 변경한다.",
+    "basicAttack": "물의 발톱",
+    "ultimate": "물의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 속도 1단계 하락.",
+    "source": "뽑기"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "스왐프 드래곤",
+    "attackType": "마법",
+    "total": 5300,
+    "stats": {
+      "hp": 1150,
+      "atk": 730,
+      "def": 980,
+      "mag": 730,
+      "res": 980,
+      "spd": 730
+    },
+    "ability": "속박",
+    "abilityEffect": "이 드래곤이 존재하는 동안 적을 속박해, 드래곤 교체 행동을 선택할 수 없게 한다.",
+    "basicAttack": "물의 파동",
+    "ultimate": "물의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 저항 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "프로그 드래곤",
+    "attackType": "물리",
+    "total": 5296,
+    "stats": {
+      "hp": 1076,
+      "atk": 996,
+      "def": 996,
+      "mag": 826,
+      "res": 826,
+      "spd": 576
+    },
+    "ability": "봄바람",
+    "abilityEffect": "맑은 날씨에서 자신의 속도 능력치가 2배 증가한다.",
+    "basicAttack": "물의 발톱",
+    "ultimate": "물의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 속도 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "물",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "아쿠아 드래곤",
+    "attackType": "물리",
+    "total": 4796,
+    "stats": {
+      "hp": 806,
+      "atk": 806,
+      "def": 726,
+      "mag": 806,
+      "res": 726,
+      "spd": 926
+    },
+    "ability": "태풍",
+    "abilityEffect": "비가 오는 날씨에서 자신의 속도 능력치가 2배 증가한다.",
+    "basicAttack": "물의 발톱",
+    "ultimate": "물의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "물속성 공격으로 큰 피해 + 30% 확률로 적의 속도 1단계 하락.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "물",
+      "땅"
+    ],
+    "grade": "전설",
+    "name": "플루모스",
+    "attackType": "물리",
+    "total": 6421,
+    "stats": {
+      "hp": 931,
+      "atk": 1516,
+      "def": 1096,
+      "mag": 931,
+      "res": 931,
+      "spd": 1016
+    },
+    "ability": "절대기류",
+    "abilityEffect": "전투 중일 때 날씨의 효과가 적용되지 않는다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "만개",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 자신의 저항 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "청룡",
+    "attackType": "물리",
+    "total": 5797,
+    "stats": {
+      "hp": 1027,
+      "atk": 1147,
+      "def": 1112,
+      "mag": 862,
+      "res": 947,
+      "spd": 702
+    },
+    "ability": "여유로움",
+    "abilityEffect": "암흑 상태가 되지 않는다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "바람의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 치명타 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "애플칙",
+    "attackType": "마법",
+    "total": 5797,
+    "stats": {
+      "hp": 902,
+      "atk": 922,
+      "def": 927,
+      "mag": 1072,
+      "res": 1072,
+      "spd": 902
+    },
+    "ability": "숲의 분노",
+    "abilityEffect": "체력이 1/3 이하일 때 바람 속성 스킬의 피해가 1.5배로 적용된다.",
+    "basicAttack": "바람의 파동",
+    "ultimate": "바람의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 더블 어택 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "식스레그혼",
+    "attackType": "물리",
+    "total": 5551,
+    "stats": {
+      "hp": 786,
+      "atk": 1371,
+      "def": 951,
+      "mag": 786,
+      "res": 786,
+      "spd": 871
+    },
+    "ability": "무관심",
+    "abilityEffect": "압도 상태가 되지 않는다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "바람의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 치명타 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "핑크벨",
+    "attackType": "마법",
+    "total": 5548,
+    "stats": {
+      "hp": 758,
+      "atk": 818,
+      "def": 968,
+      "mag": 898,
+      "res": 883,
+      "spd": 1223
+    },
+    "ability": "봄바람",
+    "abilityEffect": "맑은 날씨에서 자신의 속도 능력치가 2배 증가한다.",
+    "basicAttack": "바람의 파동",
+    "ultimate": "바람의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 더블 어택 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "리베티",
+    "attackType": "마법",
+    "total": 5548,
+    "stats": {
+      "hp": 843,
+      "atk": 758,
+      "def": 883,
+      "mag": 1173,
+      "res": 883,
+      "spd": 1008
+    },
+    "ability": "강인한 의지",
+    "abilityEffect": "상대에 의해 능력치가 하락하지 않는다.",
+    "basicAttack": "바람의 파동",
+    "ultimate": "바람의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 더블 어택 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "제피로스",
+    "attackType": "물리",
+    "total": 5548,
+    "stats": {
+      "hp": 1008,
+      "atk": 1093,
+      "def": 758,
+      "mag": 1008,
+      "res": 758,
+      "spd": 923
+    },
+    "ability": "명사수",
+    "abilityEffect": "스킬의 명중률이 1.3배로 적용된다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "바람의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 치명타 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "어둠"
+    ],
+    "grade": "영웅",
+    "name": "벨레드",
+    "attackType": "물리",
+    "total": 5301,
+    "stats": {
+      "hp": 831,
+      "atk": 971,
+      "def": 1111,
+      "mag": 786,
+      "res": 806,
+      "spd": 796
+    },
+    "ability": "천리안",
+    "abilityEffect": "적에 의해 명중 능력치가 하락하지 않는다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "바람의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 치명타 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "타이푼 드래곤",
+    "attackType": "물리",
+    "total": 5301,
+    "stats": {
+      "hp": 946,
+      "atk": 1061,
+      "def": 1031,
+      "mag": 781,
+      "res": 861,
+      "spd": 621
+    },
+    "ability": "절대기류",
+    "abilityEffect": "전투 중일 때 날씨의 효과가 적용되지 않는다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "바람의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 치명타 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "토템 드래곤",
+    "attackType": "마법",
+    "total": 5298,
+    "stats": {
+      "hp": 743,
+      "atk": 828,
+      "def": 703,
+      "mag": 1163,
+      "res": 993,
+      "spd": 868
+    },
+    "ability": "치유의 비",
+    "abilityEffect": "턴 종료 시 비가 오는 날씨라면 자신의 최대 체력의 1/16만큼 체력을 회복한다.",
+    "basicAttack": "바람의 파동",
+    "ultimate": "바람의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 더블 어택 확률 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "바람",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "윈드 드래곤",
+    "attackType": "물리",
+    "total": 4796,
+    "stats": {
+      "hp": 776,
+      "atk": 801,
+      "def": 761,
+      "mag": 801,
+      "res": 761,
+      "spd": 896
+    },
+    "ability": "유연한 몸",
+    "abilityEffect": "마비 상태가 되지 않는다.",
+    "basicAttack": "바람의 발톱",
+    "ultimate": "바람의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "바람속성 공격으로 큰 피해 + 30% 확률로 자신의 치명타 확률 1단계 상승.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "번개",
+      "어둠"
+    ],
+    "grade": "전설",
+    "name": "오벡스",
+    "attackType": "마법",
+    "total": 6426,
+    "stats": {
+      "hp": 961,
+      "atk": 1126,
+      "def": 1126,
+      "mag": 1376,
+      "res": 961,
+      "spd": 876
+    },
+    "ability": "공중부양",
+    "abilityEffect": "바닥에 깔리는 스킬의 영향을 받지 않으며, 자신에게 영향을 미치는 땅 속성 공격을 1번 무효로 한다.",
+    "basicAttack": "강철의 파동",
+    "ultimate": "레일건 임팩트",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 50,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 적보다 속도가 낮을 경우 2배 피해.",
+    "source": "뽑기"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "어둠",
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "블랙아머",
+    "attackType": "물리",
+    "total": 6296,
+    "stats": {
+      "hp": 881,
+      "atk": 1341,
+      "def": 1301,
+      "mag": 1006,
+      "res": 966,
+      "spd": 801
+    },
+    "ability": "강인한 의지",
+    "abilityEffect": "상대에 의해 능력치가 하락하지 않는다.",
+    "basicAttack": "강철의 발톱",
+    "ultimate": "흑기사",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 자신의 방어 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "드라고노이드",
+    "attackType": "마법",
+    "total": 5796,
+    "stats": {
+      "hp": 856,
+      "atk": 1021,
+      "def": 1021,
+      "mag": 1271,
+      "res": 856,
+      "spd": 771
+    },
+    "ability": "자력장",
+    "abilityEffect": "이 드래곤이 존재하는 동안 강철 속성 드래곤은 교체 행동을 선택할 수 없게 한다.",
+    "basicAttack": "강철의 파동",
+    "ultimate": "강철의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 30% 확률로 자신의 저항 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "패트",
+    "attackType": "물리",
+    "total": 5549,
+    "stats": {
+      "hp": 674,
+      "atk": 1134,
+      "def": 1299,
+      "mag": 719,
+      "res": 1049,
+      "spd": 674
+    },
+    "ability": "광분",
+    "abilityEffect": "자신에게 상태 이상이 적용된 상태에서 공격 할 때, 피해가 1.5배로 적용된다.",
+    "basicAttack": "강철의 발톱",
+    "ultimate": "강철의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 30% 확률로 적의 공격 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "샤프테일",
+    "attackType": "물리",
+    "total": 5549,
+    "stats": {
+      "hp": 774,
+      "atk": 1104,
+      "def": 1689,
+      "mag": 689,
+      "res": 689,
+      "spd": 604
+    },
+    "ability": "날카로운 비늘",
+    "abilityEffect": "피격 시 50% 확률로 상대의 최대 체력의 1/8만큼의 피해를 입힌다.",
+    "basicAttack": "강철의 발톱",
+    "ultimate": "강철의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 30% 확률로 적의 공격 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "나이트 드래곤",
+    "attackType": "물리",
+    "total": 5298,
+    "stats": {
+      "hp": 883,
+      "atk": 883,
+      "def": 883,
+      "mag": 883,
+      "res": 883,
+      "spd": 883
+    },
+    "ability": "강심장",
+    "abilityEffect": "적에 의해 자신의 공격 능력치가 하락하지 않는다.",
+    "basicAttack": "강철의 발톱",
+    "ultimate": "강철의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 30% 확률로 적의 공격 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "강철",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "아이언 드래곤",
+    "attackType": "물리",
+    "total": 4798,
+    "stats": {
+      "hp": 717,
+      "atk": 842,
+      "def": 967,
+      "mag": 757,
+      "res": 882,
+      "spd": 633
+    },
+    "ability": "여유로움",
+    "abilityEffect": "암흑 상태가 되지 않는다.",
+    "basicAttack": "강철의 발톱",
+    "ultimate": "강철의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "강철속성 공격으로 큰 피해 + 30% 확률로 적의 공격 1단계 하락.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "강철",
+      "빛"
+    ],
+    "grade": "전설",
+    "name": "파워 드래곤",
+    "attackType": "물리",
+    "total": 6556,
+    "stats": {
+      "hp": 1095,
+      "atk": 1355,
+      "def": 1167,
+      "mag": 1052,
+      "res": 1095,
+      "spd": 792
+    },
+    "ability": "괴력",
+    "abilityEffect": "물리 공격의 피해가 1.5배로 적용된다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "절명의 철권",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 적의 방어 1단계 하락.",
+    "source": "뽑기"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "불"
+    ],
+    "grade": "영웅",
+    "name": "에그 드래곤",
+    "attackType": "물리",
+    "total": 6049,
+    "stats": {
+      "hp": 1179,
+      "atk": 1214,
+      "def": 1264,
+      "mag": 844,
+      "res": 879,
+      "spd": 669
+    },
+    "ability": "광분",
+    "abilityEffect": "자신에게 상태 이상이 적용된 상태에서 공격 할 때, 피해가 1.5배로 적용된다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "뽑기"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "텀피",
+    "attackType": "물리",
+    "total": 5548,
+    "stats": {
+      "hp": 803,
+      "atk": 1093,
+      "def": 878,
+      "mag": 843,
+      "res": 963,
+      "spd": 968
+    },
+    "ability": "천리안",
+    "abilityEffect": "적에 의해 명중 능력치가 하락하지 않는다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "라키온",
+    "attackType": "물리",
+    "total": 5548,
+    "stats": {
+      "hp": 918,
+      "atk": 958,
+      "def": 878,
+      "mag": 833,
+      "res": 918,
+      "spd": 1043
+    },
+    "ability": "동화",
+    "abilityEffect": "피격 시 주 속성이 피격당한 스킬의 속성으로 변경된다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "어둠"
+    ],
+    "grade": "영웅",
+    "name": "스콜피온 드래곤",
+    "attackType": "물리",
+    "total": 5299,
+    "stats": {
+      "hp": 894,
+      "atk": 1079,
+      "def": 769,
+      "mag": 769,
+      "res": 769,
+      "spd": 1019
+    },
+    "ability": "내성",
+    "abilityEffect": "침식 상태가 되지 않는다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "머쉬룸 드래곤",
+    "attackType": "물리",
+    "total": 5299,
+    "stats": {
+      "hp": 1174,
+      "atk": 924,
+      "def": 924,
+      "mag": 759,
+      "res": 759,
+      "spd": 759
+    },
+    "ability": "내성",
+    "abilityEffect": "침식 상태가 되지 않는다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "리프 드래곤",
+    "attackType": "마법",
+    "total": 5298,
+    "stats": {
+      "hp": 703,
+      "atk": 743,
+      "def": 703,
+      "mag": 1288,
+      "res": 743,
+      "spd": 1118
+    },
+    "ability": "여유로움",
+    "abilityEffect": "암흑 상태가 되지 않는다.",
+    "basicAttack": "땅의 파동",
+    "ultimate": "땅의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 자신의 방어 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "머드 드래곤",
+    "attackType": "물리",
+    "total": 5297,
+    "stats": {
+      "hp": 952,
+      "atk": 1247,
+      "def": 877,
+      "mag": 672,
+      "res": 877,
+      "spd": 672
+    },
+    "ability": "늪",
+    "abilityEffect": "이 드래곤이 존재하는 동안 늪에 발을 빠뜨려, 드래곤 교체 행동을 선택할 수 없게 한다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "머스타드해머",
+    "attackType": "물리",
+    "total": 5296,
+    "stats": {
+      "hp": 826,
+      "atk": 911,
+      "def": 1161,
+      "mag": 576,
+      "res": 826,
+      "spd": 996
+    },
+    "ability": "강심장",
+    "abilityEffect": "적에 의해 자신의 공격 능력치가 하락하지 않는다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "땅",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "바위 드래곤",
+    "attackType": "물리",
+    "total": 4799,
+    "stats": {
+      "hp": 744,
+      "atk": 1204,
+      "def": 744,
+      "mag": 744,
+      "res": 744,
+      "spd": 619
+    },
+    "ability": "내열성 외피",
+    "abilityEffect": "화상 상태가 되지 않는다.",
+    "basicAttack": "땅의 발톱",
+    "ultimate": "땅의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "땅속성 공격으로 큰 피해 + 30% 확률로 적의 방어 1단계 하락.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "불",
+      "빛"
+    ],
+    "grade": "전설",
+    "name": "번개고룡",
+    "attackType": "마법",
+    "total": 6551,
+    "stats": {
+      "hp": 1036,
+      "atk": 1036,
+      "def": 996,
+      "mag": 1326,
+      "res": 1036,
+      "spd": 1121
+    },
+    "ability": "절연체",
+    "abilityEffect": "번개 속성 스킬에 피격 시 1번 스킬을 무효로 하고, 자신의 마력 능력치가 1단계 상승한다.",
+    "basicAttack": "번개의 파동",
+    "ultimate": "썬더스톰",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 적을 마비 상태로 만든다.",
+    "source": "뽑기"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "화이트썬더",
+    "attackType": "물리",
+    "total": 5796,
+    "stats": {
+      "hp": 841,
+      "atk": 1241,
+      "def": 776,
+      "mag": 1006,
+      "res": 926,
+      "spd": 1006
+    },
+    "ability": "재생",
+    "abilityEffect": "매 턴 종료 시 상태 이상을 1/3 확률로 회복한다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "클라우드 드래곤",
+    "attackType": "물리",
+    "total": 5796,
+    "stats": {
+      "hp": 961,
+      "atk": 1211,
+      "def": 916,
+      "mag": 1126,
+      "res": 916,
+      "spd": 666
+    },
+    "ability": "태풍",
+    "abilityEffect": "비가 오는 날씨에서 자신의 속도 능력치가 2배 증가한다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "뽑기"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "타아비레",
+    "attackType": "물리",
+    "total": 5550,
+    "stats": {
+      "hp": 790,
+      "atk": 955,
+      "def": 830,
+      "mag": 955,
+      "res": 830,
+      "spd": 1190
+    },
+    "ability": "속도광",
+    "abilityEffect": "매 턴마다 자신의 속도 능력치가 1단계 상승한다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "스플렌더",
+    "attackType": "물리",
+    "total": 5549,
+    "stats": {
+      "hp": 784,
+      "atk": 994,
+      "def": 1244,
+      "mag": 954,
+      "res": 829,
+      "spd": 744
+    },
+    "ability": "무관심",
+    "abilityEffect": "압도 상태가 되지 않는다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "청불나래",
+    "attackType": "물리",
+    "total": 5547,
+    "stats": {
+      "hp": 862,
+      "atk": 737,
+      "def": 947,
+      "mag": 737,
+      "res": 1112,
+      "spd": 1152
+    },
+    "ability": "급소 회피",
+    "abilityEffect": "피격 시 치명타가 발생하지 않는다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "불"
+    ],
+    "grade": "영웅",
+    "name": "블루라이트닝",
+    "attackType": "물리",
+    "total": 5300,
+    "stats": {
+      "hp": 785,
+      "atk": 985,
+      "def": 675,
+      "mag": 900,
+      "res": 715,
+      "spd": 1240
+    },
+    "ability": "충전",
+    "abilityEffect": "번개 속성 스킬에 피격 시 1번 스킬을 무효로 하고, 자신의 최대 체력의 1/4만큼 자신의 체력을 회복한다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "썬더볼트 드래곤",
+    "attackType": "마법",
+    "total": 5298,
+    "stats": {
+      "hp": 688,
+      "atk": 688,
+      "def": 913,
+      "mag": 1063,
+      "res": 913,
+      "spd": 1033
+    },
+    "ability": "전격피부",
+    "abilityEffect": "물리 스킬에 피격 시, 공격한 적에게 30% 확률로 마비 상태를 적용한다.",
+    "basicAttack": "번개의 파동",
+    "ultimate": "번개의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 적을 마비 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "번개",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "블루썬더",
+    "attackType": "물리",
+    "total": 4797,
+    "stats": {
+      "hp": 707,
+      "atk": 877,
+      "def": 752,
+      "mag": 792,
+      "res": 752,
+      "spd": 917
+    },
+    "ability": "절대기류",
+    "abilityEffect": "전투 중일 때 날씨의 효과가 적용되지 않는다.",
+    "basicAttack": "번개의 발톱",
+    "ultimate": "번개의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "번개속성 공격으로 큰 피해 + 30% 확률로 자신의 속도 1단계 상승.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "번개",
+      "물"
+    ],
+    "grade": "전설",
+    "name": "셀오라",
+    "attackType": "물리",
+    "total": 6550,
+    "stats": {
+      "hp": 995,
+      "atk": 1370,
+      "def": 995,
+      "mag": 995,
+      "res": 910,
+      "spd": 1285
+    },
+    "ability": "정화",
+    "abilityEffect": "교체 시 상태 이상이 제거된다.",
+    "basicAttack": "빛의 발톱",
+    "ultimate": "정화 폭발",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 자신의 모든 상태 효과 제거 및 감소한 능력치 회복.",
+    "source": "뽑기"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "라파엘",
+    "attackType": "물리",
+    "total": 5801,
+    "stats": {
+      "hp": 1141,
+      "atk": 1431,
+      "def": 1056,
+      "mag": 726,
+      "res": 806,
+      "spd": 641
+    },
+    "ability": "차력",
+    "abilityEffect": "불, 혼돈 속성 공격으로 받는 피해가 절반으로 감소한다.",
+    "basicAttack": "빛의 발톱",
+    "ultimate": "빛의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 이 공격은 반드시 명중한다(필중).",
+    "source": "교배"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "딜랑",
+    "attackType": "물리",
+    "total": 5551,
+    "stats": {
+      "hp": 856,
+      "atk": 856,
+      "def": 981,
+      "mag": 856,
+      "res": 981,
+      "spd": 1021
+    },
+    "ability": "속도광",
+    "abilityEffect": "매 턴마다 자신의 속도 능력치가 1단계 상승한다.",
+    "basicAttack": "빛의 발톱",
+    "ultimate": "빛의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 이 공격은 반드시 명중한다(필중).",
+    "source": "교배"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "헤이즈",
+    "attackType": "마법",
+    "total": 5551,
+    "stats": {
+      "hp": 731,
+      "atk": 771,
+      "def": 731,
+      "mag": 1316,
+      "res": 856,
+      "spd": 1146
+    },
+    "ability": "정화",
+    "abilityEffect": "교체 시 상태 이상이 제거된다.",
+    "basicAttack": "빛의 파동",
+    "ultimate": "빛의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 30% 확률로 적의 명중 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "스파이시",
+    "attackType": "물리",
+    "total": 5550,
+    "stats": {
+      "hp": 900,
+      "atk": 1315,
+      "def": 900,
+      "mag": 550,
+      "res": 900,
+      "spd": 985
+    },
+    "ability": "명사수",
+    "abilityEffect": "스킬의 명중률이 1.3배로 적용된다.",
+    "basicAttack": "빛의 발톱",
+    "ultimate": "빛의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 이 공격은 반드시 명중한다(필중).",
+    "source": "교배"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "솔라 드래곤",
+    "attackType": "물리",
+    "total": 5300,
+    "stats": {
+      "hp": 1030,
+      "atk": 1195,
+      "def": 1030,
+      "mag": 655,
+      "res": 735,
+      "spd": 655
+    },
+    "ability": "일출",
+    "abilityEffect": "등장 시 날씨를 5턴 동안 맑음 상태로 변경한다.",
+    "basicAttack": "빛의 발톱",
+    "ultimate": "빛의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 이 공격은 반드시 명중한다(필중).",
+    "source": "뽑기"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "에메랄드 드래곤",
+    "attackType": "마법",
+    "total": 5298,
+    "stats": {
+      "hp": 738,
+      "atk": 1068,
+      "def": 738,
+      "mag": 1113,
+      "res": 738,
+      "spd": 903
+    },
+    "ability": "행운아",
+    "abilityEffect": "스킬의 추가 효과의 발동 확률이 2배로 적용된다.",
+    "basicAttack": "빛의 파동",
+    "ultimate": "빛의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 30% 확률로 적의 명중 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "빛",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "일리오스",
+    "attackType": "물리",
+    "total": 4843,
+    "stats": {
+      "hp": 1125,
+      "atk": 960,
+      "def": 829,
+      "mag": 550,
+      "res": 829,
+      "spd": 550
+    },
+    "ability": "불쏘시개",
+    "abilityEffect": "피격 시 25% 확률로 상대를 화상 상태로 만든다. 불 속성 드래곤은 화상 상태가 적용되지 않는다.",
+    "basicAttack": "빛의 발톱",
+    "ultimate": "빛의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "빛속성 공격으로 큰 피해 + 이 공격은 반드시 명중한다(필중).",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "번개",
+      "바람"
+    ],
+    "grade": "전설",
+    "name": "피데스",
+    "attackType": "물리",
+    "total": 6546,
+    "stats": {
+      "hp": 846,
+      "atk": 1556,
+      "def": 806,
+      "mag": 1266,
+      "res": 806,
+      "spd": 1266
+    },
+    "ability": "포효",
+    "abilityEffect": "등장 시 적의 공격 능력치를 1단계 하락시킨다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "심연의 낙뢰",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 50,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 적보다 속도가 높을 경우 1.5배 피해.",
+    "source": "뽑기"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "루네라",
+    "attackType": "물리",
+    "total": 5801,
+    "stats": {
+      "hp": 826,
+      "atk": 1326,
+      "def": 1121,
+      "mag": 786,
+      "res": 871,
+      "spd": 871
+    },
+    "ability": "무관심",
+    "abilityEffect": "압도 상태가 되지 않는다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "뽑기"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "캣츠곤",
+    "attackType": "물리",
+    "total": 5800,
+    "stats": {
+      "hp": 1100,
+      "atk": 1305,
+      "def": 700,
+      "mag": 1140,
+      "res": 700,
+      "spd": 855
+    },
+    "ability": "냉기저항",
+    "abilityEffect": "결정 상태가 되지 않는다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "클렙토스",
+    "attackType": "물리",
+    "total": 5800,
+    "stats": {
+      "hp": 855,
+      "atk": 1065,
+      "def": 1065,
+      "mag": 980,
+      "res": 980,
+      "spd": 855
+    },
+    "ability": "날카로운 비늘",
+    "abilityEffect": "피격 시 50% 확률로 상대의 최대 체력의 1/8만큼의 피해를 입힌다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "닌자 드래곤",
+    "attackType": "물리",
+    "total": 5798,
+    "stats": {
+      "hp": 843,
+      "atk": 1258,
+      "def": 798,
+      "mag": 633,
+      "res": 968,
+      "spd": 1298
+    },
+    "ability": "급소 회피",
+    "abilityEffect": "피격 시 치명타가 발생하지 않는다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "G네",
+    "attackType": "물리",
+    "total": 5798,
+    "stats": {
+      "hp": 898,
+      "atk": 1108,
+      "def": 1068,
+      "mag": 773,
+      "res": 1068,
+      "spd": 883
+    },
+    "ability": "접촉 금지",
+    "abilityEffect": "피격 시 20% 확률로, 적에게 침식, 마비, 수면 중 하나의 상태 이상을 적용한다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "불"
+    ],
+    "grade": "영웅",
+    "name": "스켈레곤",
+    "attackType": "마법",
+    "total": 5560,
+    "stats": {
+      "hp": 650,
+      "atk": 945,
+      "def": 1275,
+      "mag": 945,
+      "res": 1195,
+      "spd": 550
+    },
+    "ability": "전염",
+    "abilityEffect": "침식, 부식, 마비, 화상 상태가 되었을 때 상대에게 같은 상태 이상을 적용한다.",
+    "basicAttack": "어둠의 파동",
+    "ultimate": "어둠의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 적을 암흑 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "렉테일",
+    "attackType": "물리",
+    "total": 5551,
+    "stats": {
+      "hp": 926,
+      "atk": 1091,
+      "def": 926,
+      "mag": 841,
+      "res": 841,
+      "spd": 926
+    },
+    "ability": "난폭한 힘",
+    "abilityEffect": "물리 공격을 가할 때 자신의 공격 능력치를 1.5배로 계산하고, 스킬의 명중률은 0.8배로 적용한다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "리소",
+    "attackType": "마법",
+    "total": 5547,
+    "stats": {
+      "hp": 857,
+      "atk": 967,
+      "def": 842,
+      "mag": 1132,
+      "res": 842,
+      "spd": 907
+    },
+    "ability": "피로 회복",
+    "abilityEffect": "수면 상태가 되었을 때 해제 되기까지의 턴 수가 절반으로 감소한다.",
+    "basicAttack": "어둠의 파동",
+    "ultimate": "어둠의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 적을 암흑 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "윗치 드래곤",
+    "attackType": "마법",
+    "total": 5546,
+    "stats": {
+      "hp": 856,
+      "atk": 981,
+      "def": 646,
+      "mag": 1146,
+      "res": 896,
+      "spd": 1021
+    },
+    "ability": "불길한 동행",
+    "abilityEffect": "피격 시 25% 확률로 적을 침식 상태로 만든다. 영혼, 강철 속성 드래곤은 침식 상태가 적용되지 않는다.",
+    "basicAttack": "어둠의 파동",
+    "ultimate": "어둠의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 적을 암흑 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "바알",
+    "attackType": "마법",
+    "total": 5546,
+    "stats": {
+      "hp": 801,
+      "atk": 1006,
+      "def": 801,
+      "mag": 1131,
+      "res": 801,
+      "spd": 1006
+    },
+    "ability": "속박",
+    "abilityEffect": "이 드래곤이 존재하는 동안 적을 속박해, 드래곤 교체 행동을 선택할 수 없게 한다.",
+    "basicAttack": "어둠의 파동",
+    "ultimate": "어둠의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 적을 암흑 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "서펀트 드래곤",
+    "attackType": "물리",
+    "total": 5301,
+    "stats": {
+      "hp": 746,
+      "atk": 1076,
+      "def": 746,
+      "mag": 576,
+      "res": 911,
+      "spd": 1246
+    },
+    "ability": "피로 회복",
+    "abilityEffect": "수면 상태가 되었을 때 해제 되기까지의 턴 수가 절반으로 감소한다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "어둠",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "녹스",
+    "attackType": "물리",
+    "total": 4801,
+    "stats": {
+      "hp": 816,
+      "atk": 926,
+      "def": 801,
+      "mag": 756,
+      "res": 801,
+      "spd": 701
+    },
+    "ability": "유연한 몸",
+    "abilityEffect": "마비 상태가 되지 않는다.",
+    "basicAttack": "어둠의 발톱",
+    "ultimate": "어둠의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "어둠속성 공격으로 큰 피해 + 30% 확률로 자신의 회피 1단계 상승.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "바람",
+      "영혼"
+    ],
+    "grade": "전설",
+    "name": "크레바스",
+    "attackType": "마법",
+    "total": 6548,
+    "stats": {
+      "hp": 798,
+      "atk": 943,
+      "def": 773,
+      "mag": 1608,
+      "res": 1358,
+      "spd": 1068
+    },
+    "ability": "악몽",
+    "abilityEffect": "턴 종료 시 적이 수면 상태일 경우, 적에게 적의 최대 체력의 1/8만큼 피해를 입힌다.",
+    "basicAttack": "꿈의 파동",
+    "ultimate": "검은 안개",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 수면 상태인 적에게는 1.5배 피해.",
+    "source": "레이드"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "불",
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "네뷸라",
+    "attackType": "물리",
+    "total": 6297,
+    "stats": {
+      "hp": 757,
+      "atk": 1567,
+      "def": 982,
+      "mag": 732,
+      "res": 1152,
+      "spd": 1107
+    },
+    "ability": "천리안",
+    "abilityEffect": "적에 의해 명중 능력치가 하락하지 않는다.",
+    "basicAttack": "꿈의 발톱",
+    "ultimate": "황홀한 빛",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 40,
+    "ultimateEffect": "꿈속성 공격으로 피해 + 적을 수면 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "땅",
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "세에레",
+    "attackType": "마법",
+    "total": 6296,
+    "stats": {
+      "hp": 946,
+      "atk": 861,
+      "def": 1401,
+      "mag": 1321,
+      "res": 946,
+      "spd": 821
+    },
+    "ability": "불면증",
+    "abilityEffect": "수면 상태가 되지 않는다.",
+    "basicAttack": "꿈의 파동",
+    "ultimate": "운명의 전환",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 적의 마력 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "큐피트",
+    "attackType": "마법",
+    "total": 5800,
+    "stats": {
+      "hp": 1252,
+      "atk": 747,
+      "def": 997,
+      "mag": 1177,
+      "res": 1077,
+      "spd": 550
+    },
+    "ability": "피로 회복",
+    "abilityEffect": "수면 상태가 되었을 때 해제 되기까지의 턴 수가 절반으로 감소한다.",
+    "basicAttack": "꿈의 파동",
+    "ultimate": "꿈의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 자신의 마력 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "에일리언 드래곤",
+    "attackType": "물리",
+    "total": 5798,
+    "stats": {
+      "hp": 813,
+      "atk": 1288,
+      "def": 788,
+      "mag": 788,
+      "res": 1208,
+      "spd": 913
+    },
+    "ability": "공중부양",
+    "abilityEffect": "바닥에 깔리는 스킬의 영향을 받지 않으며, 자신에게 영향을 미치는 땅 속성 공격을 1번 무효로 한다.",
+    "basicAttack": "꿈의 발톱",
+    "ultimate": "꿈의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 적을 수면 상태로 만든다.",
+    "source": "뽑기"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "번개"
+    ],
+    "grade": "영웅",
+    "name": "헤네스",
+    "attackType": "물리",
+    "total": 5548,
+    "stats": {
+      "hp": 708,
+      "atk": 1168,
+      "def": 953,
+      "mag": 583,
+      "res": 1208,
+      "spd": 928
+    },
+    "ability": "차력",
+    "abilityEffect": "불, 혼돈 속성 공격으로 받는 피해가 절반으로 감소한다.",
+    "basicAttack": "꿈의 발톱",
+    "ultimate": "꿈의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 적을 수면 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "페어리 드래곤",
+    "attackType": "마법",
+    "total": 5547,
+    "stats": {
+      "hp": 812,
+      "atk": 897,
+      "def": 857,
+      "mag": 1062,
+      "res": 857,
+      "spd": 1062
+    },
+    "ability": "정화",
+    "abilityEffect": "교체 시 상태 이상이 제거된다.",
+    "basicAttack": "꿈의 파동",
+    "ultimate": "꿈의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 자신의 마력 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "어둠"
+    ],
+    "grade": "영웅",
+    "name": "삐에로 드래곤",
+    "attackType": "물리",
+    "total": 5300,
+    "stats": {
+      "hp": 1905,
+      "atk": 595,
+      "def": 805,
+      "mag": 595,
+      "res": 805,
+      "spd": 595
+    },
+    "ability": "인내",
+    "abilityEffect": "자신에게 상태 이상이 적용되는 동안 자신의 방어 능력치가 1.5배로 적용된다.",
+    "basicAttack": "꿈의 발톱",
+    "ultimate": "꿈의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 적을 수면 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "골디",
+    "attackType": "물리",
+    "total": 5299,
+    "stats": {
+      "hp": 794,
+      "atk": 1149,
+      "def": 819,
+      "mag": 844,
+      "res": 874,
+      "spd": 819
+    },
+    "ability": "행운아",
+    "abilityEffect": "스킬의 추가 효과의 발동 확률이 2배로 적용된다.",
+    "basicAttack": "꿈의 발톱",
+    "ultimate": "꿈의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 적을 수면 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "꿈",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "램곤",
+    "attackType": "물리",
+    "total": 5046,
+    "stats": {
+      "hp": 701,
+      "atk": 1121,
+      "def": 786,
+      "mag": 701,
+      "res": 701,
+      "spd": 1036
+    },
+    "ability": "재생",
+    "abilityEffect": "매 턴 종료 시 상태 이상을 1/3 확률로 회복한다.",
+    "basicAttack": "꿈의 발톱",
+    "ultimate": "꿈의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "꿈속성 공격으로 큰 피해 + 30% 확률로 적을 수면 상태로 만든다.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "바람",
+      "꿈"
+    ],
+    "grade": "전설",
+    "name": "센투라",
+    "attackType": "물리",
+    "total": 6549,
+    "stats": {
+      "hp": 1074,
+      "atk": 1184,
+      "def": 1009,
+      "mag": 1184,
+      "res": 1009,
+      "spd": 1089
+    },
+    "ability": "강인한 의지",
+    "abilityEffect": "상대에 의해 능력치가 하락하지 않는다.",
+    "basicAttack": "영혼의 발톱",
+    "ultimate": "영혼 파괴",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 자신의 속도 1단계 상승.",
+    "source": "라테아의 문"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "물",
+      "어둠"
+    ],
+    "grade": "전설",
+    "name": "루시오",
+    "attackType": "물리",
+    "total": 6548,
+    "stats": {
+      "hp": 918,
+      "atk": 1168,
+      "def": 878,
+      "mag": 1168,
+      "res": 1083,
+      "spd": 1333
+    },
+    "ability": "불면증",
+    "abilityEffect": "수면 상태가 되지 않는다.",
+    "basicAttack": "영혼의 발톱",
+    "ultimate": "혼령의 파동",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 적의 방어 1단계 하락.",
+    "source": "뽑기"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "어둠",
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "드래든",
+    "attackType": "마법",
+    "total": 6297,
+    "stats": {
+      "hp": 1182,
+      "atk": 977,
+      "def": 1002,
+      "mag": 1102,
+      "res": 1142,
+      "spd": 892
+    },
+    "ability": "급소 회피",
+    "abilityEffect": "피격 시 치명타가 발생하지 않는다.",
+    "basicAttack": "영혼의 파동",
+    "ultimate": "강령술",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 적을 침식 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "어둠"
+    ],
+    "grade": "영웅",
+    "name": "미이라곤",
+    "attackType": "물리",
+    "total": 5801,
+    "stats": {
+      "hp": 1161,
+      "atk": 1076,
+      "def": 861,
+      "mag": 891,
+      "res": 811,
+      "spd": 1001
+    },
+    "ability": "재생",
+    "abilityEffect": "매 턴 종료 시 상태 이상을 1/3 확률로 회복한다.",
+    "basicAttack": "영혼의 발톱",
+    "ultimate": "영혼의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 30% 확률로 적의 마력 1단계 하락.",
+    "source": "뽑기"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "불"
+    ],
+    "grade": "영웅",
+    "name": "그리포",
+    "attackType": "마법",
+    "total": 5546,
+    "stats": {
+      "hp": 751,
+      "atk": 961,
+      "def": 666,
+      "mag": 1041,
+      "res": 961,
+      "spd": 1166
+    },
+    "ability": "공중부양",
+    "abilityEffect": "바닥에 깔리는 스킬의 영향을 받지 않으며, 자신에게 영향을 미치는 땅 속성 공격을 1번 무효로 한다.",
+    "basicAttack": "영혼의 파동",
+    "ultimate": "영혼의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 30% 확률로 적을 침식 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "미스트 드래곤",
+    "attackType": "물리",
+    "total": 5301,
+    "stats": {
+      "hp": 921,
+      "atk": 821,
+      "def": 796,
+      "mag": 821,
+      "res": 1171,
+      "spd": 771
+    },
+    "ability": "냉기저항",
+    "abilityEffect": "결정 상태가 되지 않는다.",
+    "basicAttack": "영혼의 발톱",
+    "ultimate": "영혼의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 30% 확률로 적의 마력 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "물"
+    ],
+    "grade": "영웅",
+    "name": "슬라임 드래곤",
+    "attackType": "물리",
+    "total": 5300,
+    "stats": {
+      "hp": 935,
+      "atk": 900,
+      "def": 895,
+      "mag": 645,
+      "res": 975,
+      "spd": 950
+    },
+    "ability": "늪",
+    "abilityEffect": "이 드래곤이 존재하는 동안 늪에 발을 빠뜨려, 드래곤 교체 행동을 선택할 수 없게 한다.",
+    "basicAttack": "영혼의 발톱",
+    "ultimate": "영혼의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 30% 확률로 적의 마력 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "영혼",
+    "subElements": [
+      "-"
+    ],
+    "grade": "희귀",
+    "name": "깨비곤",
+    "attackType": "마법",
+    "total": 5048,
+    "stats": {
+      "hp": 978,
+      "atk": 768,
+      "def": 793,
+      "mag": 893,
+      "res": 933,
+      "spd": 683
+    },
+    "ability": "동화",
+    "abilityEffect": "피격 시 주 속성이 피격당한 스킬의 속성으로 변경된다.",
+    "basicAttack": "영혼의 파동",
+    "ultimate": "영혼의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "영혼속성 공격으로 큰 피해 + 30% 확률로 적을 침식 상태로 만든다.",
+    "source": "빌리지 상점"
+  },
+  {
+    "element": "여명",
+    "subElements": [
+      "빛",
+      "번개"
+    ],
+    "grade": "전설",
+    "name": "엔젤주니어",
+    "attackType": "물리",
+    "total": 6426,
+    "stats": {
+      "hp": 1196,
+      "atk": 1446,
+      "def": 1071,
+      "mag": 946,
+      "res": 946,
+      "spd": 821
+    },
+    "ability": "숨결의 동화",
+    "abilityEffect": "필드에 나와있는 동안 1회 한정으로 사용한 스킬과 동일한 속성으로 자신의 주 속성이 변경된 뒤 발동한다.",
+    "basicAttack": "여명의 발톱",
+    "ultimate": "수호의 여명",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "여명속성 공격으로 큰 피해 + 자신의 공격 1단계 상승.",
+    "source": "교배"
+  },
+  {
+    "element": "여명",
+    "subElements": [
+      "꿈",
+      "어둠"
+    ],
+    "grade": "전설",
+    "name": "플로레",
+    "attackType": "마법",
+    "total": 6424,
+    "stats": {
+      "hp": 1024,
+      "atk": 729,
+      "def": 1104,
+      "mag": 1314,
+      "res": 1274,
+      "spd": 979
+    },
+    "ability": "인내",
+    "abilityEffect": "자신에게 상태 이상이 적용되는 동안 자신의 방어 능력치가 1.5배로 적용된다.",
+    "basicAttack": "여명의 파동",
+    "ultimate": "단절의 소용돌이",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "여명속성 공격으로 큰 피해 + 자신의 마력 1단계 상승.",
+    "source": "뽑기"
+  },
+  {
+    "element": "여명",
+    "subElements": [
+      "빛"
+    ],
+    "grade": "영웅",
+    "name": "백룡",
+    "attackType": "물리",
+    "total": 6297,
+    "stats": {
+      "hp": 1127,
+      "atk": 1057,
+      "def": 1102,
+      "mag": 1002,
+      "res": 1002,
+      "spd": 1007
+    },
+    "ability": "유연한 몸",
+    "abilityEffect": "마비 상태가 되지 않는다.",
+    "basicAttack": "여명의 발톱",
+    "ultimate": "여명의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "여명속성 공격으로 큰 피해 + 50% 확률로 자신의 모든 상태 효과 제거.",
+    "source": "교배"
+  },
+  {
+    "element": "여명",
+    "subElements": [
+      "땅"
+    ],
+    "grade": "영웅",
+    "name": "터들톰톰",
+    "attackType": "물리",
+    "total": 6050,
+    "stats": {
+      "hp": 1115,
+      "atk": 1155,
+      "def": 855,
+      "mag": 1155,
+      "res": 880,
+      "spd": 890
+    },
+    "ability": "정화",
+    "abilityEffect": "교체 시 상태 이상이 제거된다.",
+    "basicAttack": "여명의 발톱",
+    "ultimate": "여명의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "여명속성 공격으로 큰 피해 + 50% 확률로 자신의 모든 상태 효과 제거.",
+    "source": "교배"
+  },
+  {
+    "element": "황혼",
+    "subElements": [
+      "영혼",
+      "어둠"
+    ],
+    "grade": "전설",
+    "name": "논",
+    "attackType": "물리",
+    "total": 6547,
+    "stats": {
+      "hp": 737,
+      "atk": 1197,
+      "def": 1487,
+      "mag": 902,
+      "res": 1487,
+      "spd": 737
+    },
+    "ability": "불면증",
+    "abilityEffect": "수면 상태가 되지 않는다.",
+    "basicAttack": "황혼의 발톱",
+    "ultimate": "황혼의 균열",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "황혼속성 공격으로 큰 피해 + 적보다 먼저 공격(선공).",
+    "source": "뽑기"
+  },
+  {
+    "element": "황혼",
+    "subElements": [
+      "꿈",
+      "바람"
+    ],
+    "grade": "영웅",
+    "name": "에이라",
+    "attackType": "마법",
+    "total": 6423,
+    "stats": {
+      "hp": 883,
+      "atk": 883,
+      "def": 883,
+      "mag": 1258,
+      "res": 1258,
+      "spd": 1258
+    },
+    "ability": "속박",
+    "abilityEffect": "이 드래곤이 존재하는 동안 적을 속박해, 드래곤 교체 행동을 선택할 수 없게 한다.",
+    "basicAttack": "황혼의 파동",
+    "ultimate": "찬란한 구체",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "황혼속성 공격으로 큰 피해 + 적을 압도 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "황혼",
+    "subElements": [
+      "어둠"
+    ],
+    "grade": "영웅",
+    "name": "흑룡",
+    "attackType": "물리",
+    "total": 6301,
+    "stats": {
+      "hp": 1006,
+      "atk": 1266,
+      "def": 931,
+      "mag": 1166,
+      "res": 916,
+      "spd": 1016
+    },
+    "ability": "포효",
+    "abilityEffect": "등장 시 적의 공격 능력치를 1단계 하락시킨다.",
+    "basicAttack": "황혼의 발톱",
+    "ultimate": "황혼의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "황혼속성 공격으로 큰 피해 + 50% 확률로 적을 압도 상태로 만든다.",
+    "source": "교배"
+  },
+  {
+    "element": "황혼",
+    "subElements": [
+      "꿈"
+    ],
+    "grade": "영웅",
+    "name": "카라선",
+    "attackType": "마법",
+    "total": 6051,
+    "stats": {
+      "hp": 786,
+      "atk": 746,
+      "def": 1036,
+      "mag": 1496,
+      "res": 1036,
+      "spd": 951
+    },
+    "ability": "치유의 비",
+    "abilityEffect": "턴 종료 시 비가 오는 날씨라면 자신의 최대 체력의 1/16만큼 체력을 회복한다.",
+    "basicAttack": "황혼의 파동",
+    "ultimate": "황혼의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "황혼속성 공격으로 큰 피해 + 30% 확률로 적의 방어와 저항 1단계 하락.",
+    "source": "교배"
+  },
+  {
+    "element": "신성",
+    "subElements": [
+      "빛",
+      "바람"
+    ],
+    "grade": "전설",
+    "name": "고대신룡",
+    "attackType": "물리",
+    "total": 6798,
+    "stats": {
+      "hp": 1023,
+      "atk": 1438,
+      "def": 1188,
+      "mag": 1188,
+      "res": 1023,
+      "spd": 938
+    },
+    "ability": "무결",
+    "abilityEffect": "피격 시 스킬의 추가 효과에 의한 상태 이상 및 능력치 변화를 받지 않는다.",
+    "basicAttack": "신성의 발톱",
+    "ultimate": "광명의 파동",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "신성속성 공격으로 큰 피해 + 자신의 최대 체력 25%만큼 회복.",
+    "source": "뽑기"
+  },
+  {
+    "element": "신성",
+    "subElements": [
+      "강철"
+    ],
+    "grade": "영웅",
+    "name": "그라노스",
+    "attackType": "마법",
+    "total": 6050,
+    "stats": {
+      "hp": 820,
+      "atk": 820,
+      "def": 780,
+      "mag": 1195,
+      "res": 1070,
+      "spd": 1365
+    },
+    "ability": "행운아",
+    "abilityEffect": "스킬의 추가 효과의 발동 확률이 2배로 적용된다.",
+    "basicAttack": "신성의 파동",
+    "ultimate": "신성의 권능",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "신성속성 공격으로 큰 피해 + 확정적으로 자신의 모든 상태 효과 제거.",
+    "source": "교배"
+  },
+  {
+    "element": "혼돈",
+    "subElements": [
+      "어둠",
+      "번개"
+    ],
+    "grade": "전설",
+    "name": "다크닉스",
+    "attackType": "마법",
+    "total": 6798,
+    "stats": {
+      "hp": 1023,
+      "atk": 1188,
+      "def": 1023,
+      "mag": 1438,
+      "res": 1188,
+      "spd": 938
+    },
+    "ability": "무결",
+    "abilityEffect": "피격 시 스킬의 추가 효과에 의한 상태 이상 및 능력치 변화를 받지 않는다.",
+    "basicAttack": "혼돈의 파동",
+    "ultimate": "파멸의 고동",
+    "ultimateType": "마법",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "혼돈속성 공격으로 큰 피해 + 적을 암흑 상태로 만든다.",
+    "source": "뽑기"
+  },
+  {
+    "element": "혼돈",
+    "subElements": [
+      "영혼"
+    ],
+    "grade": "영웅",
+    "name": "섀도우 드래곤",
+    "attackType": "물리",
+    "total": 6051,
+    "stats": {
+      "hp": 1126,
+      "atk": 1251,
+      "def": 1001,
+      "mag": 921,
+      "res": 1001,
+      "spd": 751
+    },
+    "ability": "난폭한 힘",
+    "abilityEffect": "물리 공격을 가할 때 자신의 공격 능력치를 1.5배로 계산하고, 스킬의 명중률은 0.8배로 적용한다.",
+    "basicAttack": "혼돈의 발톱",
+    "ultimate": "혼돈의 심판",
+    "ultimateType": "물리",
+    "accuracy": 100,
+    "power": 60,
+    "ultimateEffect": "혼돈속성 공격으로 큰 피해 + 50% 확률로 자신의 공격과 마력 1단계 상승.",
+    "source": "교배"
+  }
+]
