@@ -82,6 +82,17 @@ const Breed = (() => {
     return s;
   };
 
+  /* ---- 성공까지 기대 교배 횟수 & 누적 교배시간 추정 ----
+   * 기하분포: 기대 시도수 = 100/p, 실패수 = (100-p)/p
+   * 누적시간 ≈ 실패수 × (실패 1회 평균 교배시간) + 성공 1회(타깃 교배시간)
+   */
+  const expect = (p, ft, targetId) => {
+    if (!p || p <= 0) return null;
+    const attempts = 100 / p;
+    const total = ((100 - p) / p) * ft + ((BYID[targetId] && BYID[targetId].breedingSeconds) || 0);
+    return { attempts, total };
+  };
+
   /* ============================================================
    *  상위 헬퍼
    * ========================================================== */
@@ -196,7 +207,7 @@ const Breed = (() => {
   const byId = (id) => BYID[id];
   const byName = (nm) => BYNAME[nm];
 
-  return { load, breed, failTime, comboKeys, eligible,
+  return { load, breed, failTime, expect, comboKeys, eligible,
            rareIds, ownedIdSet, parentPool, combosForTarget,
            bestSimultaneous, route, all, byId, byName, TIER_MAX };
 })();

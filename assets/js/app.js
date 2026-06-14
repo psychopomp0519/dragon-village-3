@@ -296,12 +296,19 @@ const bEls = d => (d.elementNames||[]).map(e=>elBadge(e)).join("");
 const bRarity = r => ({3:"희귀",4:"영웅",5:"전설"})[r]||"";
 // 교배용 보유 id 집합 (희귀 10종 항상 포함)
 const breedOwnedSet = () => Breed.ownedIdSet(Store.list());
-// 드래곤 한 마리를 작은 칩으로
+// 드래곤 한 마리를 작은 칩으로 (클릭 시 도감 상세)
 function bPill(d, ownSet){
-  const own = ownSet.has(d.id);
-  return `<span class="bpill${own?' owned':''}" title="${own?'보유':'미보유'}">
+  const own = ownSet.has(d.id), inDex = DB.dragons.some(x=>x.name===d.name);
+  return `<span class="bpill${own?' owned':''}${inDex?' link':''}"${inDex?` data-dragon="${esc(d.name)}"`:''} title="${esc(d.name)}${inDex?' · 클릭하면 도감 상세':''}">
     <span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>${esc(d.name)}
     <span class="bpill-t">T${d.tier}</span>${own?'<span class="bpill-own">★</span>':''}</span>`;
+}
+// 기대 횟수·누적 시간 요약
+function estStr(p, ft, targetId){
+  const e = Breed.expect(p, ft, targetId);
+  if(!e) return "";
+  const a = e.attempts < 10 ? e.attempts.toFixed(1) : Math.round(e.attempts);
+  return `기대 ${a}회 · ${fmtTime(e.total)}`;
 }
 
 /* 콤보박스(검색→선택) 헬퍼 */
@@ -355,25 +362,30 @@ function renderBreedParent(){
     <div class="breed-pairhead">${bPill(a,ownSet)} <span class="breed-x">×</span> ${bPill(b,ownSet)}
       <span class="breed-note">결과 ${rows.length}종 · 확률 합 100%</span></div>
     <div class="table-wrap"><table class="data-table breed-table">
-      <thead><tr><th>결과 드래곤</th><th>속성</th><th>등급</th><th>티어</th><th>확률</th><th>교배시간</th><th>부화시간</th><th>보유</th></tr></thead>
-      <tbody>${rows.map(({d,p})=>`<tr${ownSet.has(d.id)?' class="is-own"':''}>
-        <td class="nm">${esc(d.name)}</td>
+      <thead><tr><th>결과 드래곤</th><th>속성</th><th>등급</th><th>티어</th><th>확률</th>
+        <th title="이 결과를 한 번 얻기까지 평균 교배 횟수">기대 횟수</th><th>교배시간</th><th>부화시간</th><th>보유</th></tr></thead>
+      <tbody>${rows.map(({d,p})=>{
+        const att = p<10 ? (100/p).toFixed(1) : Math.round(100/p);
+        return `<tr${ownSet.has(d.id)?' class="is-own"':''}>
+        <td class="nm link" data-dragon="${esc(d.name)}">${esc(d.name)}</td>
         <td>${bEls(d)}</td>
         <td>${esc(bRarity(d.rarity))}</td>
         <td class="num">${d.tier}</td>
         <td class="num"><b>${p.toFixed(2)}%</b><span class="pbar"><span style="width:${Math.min(100,p)}%"></span></span></td>
+        <td class="num">${att}회</td>
         <td class="num">${fmtTime(d.breedingSeconds)}</td>
         <td class="num">${fmtTime(d.hatchingSeconds)}</td>
         <td>${ownSet.has(d.id)?'★':'—'}</td>
-      </tr>`).join("")}</tbody>
+      </tr>`;}).join("")}</tbody>
     </table></div>`;
 }
 
 /* ---- 목표로 찾기 ---- */
-function bPairLine(a,b,p,ft,ownSet){
+function bPairLine(a,b,p,ft,ownSet,targetId){
   return `<div class="bpair">
     <span class="bpair-parents">${bPill(Breed.byId(a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(b),ownSet)}</span>
-    <span class="bpair-stat"><b class="prob">${p.toFixed(2)}%</b><span class="ft">실패 ${fmtTime(ft)}</span></span>
+    <span class="bpair-stat"><b class="prob">${p.toFixed(2)}%</b>
+      <span class="ft">${esc(estStr(p,ft,targetId))}</span></span>
   </div>`;
 }
 function renderBreedTarget(){
@@ -404,8 +416,8 @@ function renderBreedTarget(){
     if(combos.length){
       const top=combos[0];
       html+=`<div class="breed-card">
-        <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">가능 조합 ${combos.length}쌍 · 최고 <b>${top.p.toFixed(2)}%</b></span></div>
-        <div class="bc-list">${combos.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet)).join("")}</div>
+        <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">가능 조합 ${combos.length}쌍 · 최고 <b>${top.p.toFixed(2)}%</b> · ${esc(estStr(top.p,top.ft,t))}</span></div>
+        <div class="bc-list">${combos.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,t)).join("")}</div>
       </div>`;
     } else {
       html+=`<div class="breed-card no">
@@ -419,18 +431,20 @@ function renderBreedTarget(){
   if(s.targets.length>=2){
     const sim=Breed.bestSimultaneous(s.targets,pool,s.level);
     const all=sim.covered.size===s.targets.length;
-    const totFt=sim.plan.reduce((a,x)=>a+x.ft,0);
+    const ests=sim.plan.map(x=>Breed.expect(x.p,x.ft,x.target)||{total:0});
+    const parallel=ests.reduce((m,e)=>Math.max(m,e.total),0);   // 동시 진행 → 가장 느린 칸
+    const sumTime=ests.reduce((a,e)=>a+e.total,0);               // 누적 교배시간 합
     html+=`<div class="breed-sec"><h3>동시 교배 분석 <small>부모를 겹치지 않게 동시에</small></h3>`;
     html+=`<div class="sim-banner ${all?'ok':'warn'}">${all
       ? `✅ 선택한 ${s.targets.length}마리 <b>모두 동시 교배 가능</b>합니다.`
       : `⚠️ ${s.targets.length}마리 동시 교배는 <b>불가능</b>합니다. 부모가 겹치지 않게 만들 수 있는 최대치는 <b>${sim.covered.size}마리</b>입니다.`}
-      ${sim.plan.length?`<span class="sim-ft">총 실패시간 합 ${fmtTime(totFt)}</span>`:''}</div>`;
+      ${sim.plan.length?`<span class="sim-ft">병렬 예상 완료 ~${fmtTime(parallel)} · 누적 교배시간 ~${fmtTime(sumTime)}</span>`:''}</div>`;
     if(sim.plan.length){
       html+=`<div class="sim-grid">${sim.plan.map(x=>`
         <div class="sim-slot">
           <div class="sim-target">${bPill(Breed.byId(x.target),ownSet)}</div>
           <div class="sim-recipe">${bPill(Breed.byId(x.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(x.b),ownSet)}</div>
-          <div class="sim-prob"><b>${x.p.toFixed(2)}%</b> · 실패 ${fmtTime(x.ft)}</div>
+          <div class="sim-prob"><b>${x.p.toFixed(2)}%</b> · ${esc(estStr(x.p,x.ft,x.target))}</div>
         </div>`).join("")}</div>`;
     }
     const excluded=s.targets.filter(t=>!sim.covered.has(t));
@@ -451,12 +465,20 @@ function renderBreedTarget(){
       const d=Breed.byId(t);
       const steps=Breed.route(t,startIds,s.level);
       if(steps&&steps.length){
-        html+=`<div class="route-card">
-          <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${steps.length}단계 — 중간 드래곤을 먼저 교배하세요</span></div>
-          <ol class="route-steps">${steps.map(st=>`<li>
+        let routeTotal=0;
+        const lis=steps.map(st=>{
+          const out=Breed.breed(Breed.byId(st.a),Breed.byId(st.b),s.level);
+          const ft=Breed.failTime(out,st.result);
+          const e=Breed.expect(st.p,ft,st.result); if(e) routeTotal+=e.total;
+          const att = st.p>=99.99 ? "1회" : (st.p<10?(100/st.p).toFixed(1):Math.round(100/st.p))+"회";
+          return `<li>
             ${bPill(Breed.byId(st.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(st.b),ownSet)}
             <span class="route-arrow">→</span> ${bPill(Breed.byId(st.result),ownSet)}
-            <span class="route-p">${st.p.toFixed(2)}%</span></li>`).join("")}</ol>
+            <span class="route-p">${st.p.toFixed(2)}% · 기대 ${att}</span></li>`;
+        }).join("");
+        html+=`<div class="route-card">
+          <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${steps.length}단계 — 중간 드래곤을 먼저 교배하세요 · 누적 교배시간 ~${fmtTime(routeTotal)}</span></div>
+          <ol class="route-steps">${lis}</ol>
         </div>`;
       } else {
         html+=`<div class="route-card no"><div class="bc-head">${bPill(d,ownSet)}
@@ -484,6 +506,12 @@ function renderBreeding(){
 function initBreeding(){
   const s=state.breeding;
   Breed.load(DB.breeding_dragons);
+  // 드래곤 칩/이름 클릭 → 도감 상세 (이벤트 위임)
+  $("#view-breeding").addEventListener("click",e=>{
+    if(e.target.closest(".bx")||e.target.closest(".combo-item")) return;
+    const el=e.target.closest("[data-dragon]");
+    if(el) openDragon(el.dataset.dragon);
+  });
   // 모드
   $$("#breed-modes .bmode").forEach(b=>b.onclick=()=>{ s.mode=b.dataset.bmode; renderBreeding(); });
   // 컨텍스트

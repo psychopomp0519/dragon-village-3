@@ -315,3 +315,9 @@ select:focus{outline:none;border-color:var(--accent)}
   display:flex;align-items:center;justify-content:center}
 .route-arrow{color:var(--accent2);font-weight:900}
 .route-p{color:var(--gold);font-weight:700;margin-left:auto;font-size:12px}
+
+/* 교배 — 도감 연결 클릭 */
+.bpill.link{cursor:pointer}
+.bpill.link:hover{border-color:var(--accent);color:var(--accent2)}
+.breed-table .nm.link{cursor:pointer}
+.breed-table .nm.link:hover{color:var(--accent2);text-decoration:underline}
