@@ -143,19 +143,40 @@ function renderDragons(){
   });
 }
 
+// 능력치 육각형(레이더) 차트
+function statRadar(d){
+  const keys=Object.keys(STAT_LABELS), MAX=1500;
+  const cx=130,cy=128,R=84;
+  const ang=i=>(-90+i*60)*Math.PI/180;
+  const pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
+  const poly=r=>keys.map((_,i)=>pt(i,r).map(n=>n.toFixed(1)).join(",")).join(" ");
+  let grid="";
+  [0.25,0.5,0.75,1].forEach(f=>{grid+=`<polygon points="${poly(R*f)}" class="rg-ring"/>`;});
+  let axes="";
+  keys.forEach((_,i)=>{const[x,y]=pt(i,R);axes+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" class="rg-axis"/>`;});
+  const vpts=keys.map((k,i)=>{const v=d.stats[k]||0;return pt(i,R*Math.min(1,v/MAX)).map(n=>n.toFixed(1)).join(",");}).join(" ");
+  let dots="",labels="";
+  keys.forEach((k,i)=>{
+    const v=d.stats[k]||0;
+    const[vx,vy]=pt(i,R*Math.min(1,v/MAX)); dots+=`<circle cx="${vx.toFixed(1)}" cy="${vy.toFixed(1)}" r="2.6" class="rg-dot"/>`;
+    const[lx,ly]=pt(i,R+19);
+    const anchor=Math.abs(lx-cx)<6?"middle":(lx<cx?"end":"start");
+    labels+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" class="rg-lbl">${STAT_LABELS[k]}</text>`;
+    labels+=`<text x="${lx.toFixed(1)}" y="${(ly+13).toFixed(1)}" text-anchor="${anchor}" class="rg-val">${v}</text>`;
+  });
+  return `<svg viewBox="0 0 260 256" class="stat-radar" role="img" aria-label="능력치 육각형 차트">
+    ${grid}${axes}<polygon points="${vpts}" class="rg-area"/>${dots}${labels}</svg>`;
+}
+
 function openDragon(name){
   const d=DB.dragons.find(x=>x.name===name); if(!d) return;
   const subs=d.subElements.map(e=>`<span class="badge badge-el" style="background:${elColor(e)};opacity:.7">${esc(e)}</span>`).join("");
-  const stats=Object.keys(STAT_LABELS).map(k=>{
-    const v=d.stats[k]||0,pct=Math.min(100,v/1500*100);
-    return `<div class="statbar"><span class="lbl">${STAT_LABELS[k]}</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span class="val">${v}</span></div>`;
-  }).join("");
   $("#modal-body").innerHTML=`
     <div class="m-head"><div class="m-name">${esc(d.name)}</div></div>
     <div class="m-tags">${elBadge(d.element)}${subs}${gradeBadge(d.grade)}<span class="badge badge-atk">${esc(d.attackType)} 공격형</span></div>
     <button class="btn m-own-btn${Store.has(d.name)?' owned':''}" id="m-own" data-name="${esc(d.name)}">${Store.has(d.name)?'★ 보유 중 — 해제':'☆ 보유로 표시'}</button>
     <div class="m-total"><b>${d.total}</b><span>Lv.50 · 5성 기준 능력치 합계</span></div>
-    <div class="m-section"><h4>능력치</h4><div class="m-stats statbars">${stats}</div></div>
+    <div class="m-section"><h4>능력치</h4><div class="m-radar-wrap">${statRadar(d)}</div></div>
     <div class="m-section"><h4>특성 (어빌리티)</h4>
       <div class="m-row"><div class="t">${esc(d.ability)}</div><div class="d">${esc(d.abilityEffect)}</div></div></div>
     <div class="m-section"><h4>스킬</h4>

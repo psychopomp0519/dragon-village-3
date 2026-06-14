@@ -396,3 +396,13 @@ select:focus{outline:none;border-color:var(--accent)}
 .cf-group .chips{margin-bottom:0;flex:1}
 /* 다중 선택 칩(등급·획득처) 활성색 */
 #dragon-grades .chip.active,#dragon-sources .chip.active{background:var(--accent);color:#fff;border-color:transparent}
+
+/* 능력치 육각형(레이더) 차트 */
+.m-radar-wrap{display:flex;justify-content:center;padding:6px 0 2px}
+.stat-radar{width:100%;max-width:300px;height:auto}
+.stat-radar .rg-ring{fill:none;stroke:var(--line);stroke-width:1}
+.stat-radar .rg-axis{stroke:var(--line);stroke-width:1}
+.stat-radar .rg-area{fill:rgba(106,92,255,.28);stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.stat-radar .rg-dot{fill:var(--accent)}
+.stat-radar .rg-lbl{fill:var(--muted);font-size:11px;font-weight:700}
+.stat-radar .rg-val{fill:var(--text);font-size:12px;font-weight:900}
