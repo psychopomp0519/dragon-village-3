@@ -388,3 +388,11 @@ select:focus{outline:none;border-color:var(--accent)}
 .brk-sel{margin-left:10px;background:var(--panel);border:1px solid var(--line);color:var(--text);
   border-radius:8px;padding:4px 8px;font-size:12px;font-family:inherit;font-weight:700;vertical-align:middle}
 .breed-sec>h3{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+
+/* 칩 필터 그룹 (속성·등급·획득처) */
+.chip-filters{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.cf-group{display:flex;align-items:flex-start;gap:10px}
+.cf-label{flex:0 0 48px;font-size:12px;font-weight:700;color:var(--muted);padding-top:7px}
+.cf-group .chips{margin-bottom:0;flex:1}
+/* 다중 선택 칩(등급·획득처) 활성색 */
+#dragon-grades .chip.active,#dragon-sources .chip.active{background:var(--accent);color:#fff;border-color:transparent}

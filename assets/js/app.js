@@ -13,7 +13,7 @@ const elColor = e => ELEMENT_COLORS[e] || "#7c6cff";
 /* ===== 상태 ===== */
 const DB = {};
 const state = {
-  dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:"",owned:""},
+  dragons:{search:"",grades:[],attack:"",sources:[],sort:"total",element:"",owned:""},
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
   abilities:{search:""},
   breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null,pickup:[],pickupEdit:false,barracks:3},
@@ -71,14 +71,34 @@ function buildElementChips(containerId,elements,getActive,onpick){
   render();
 }
 
+/* ===== 다중 선택 칩 (등급·획득처) ===== */
+function buildMultiChips(containerId,values,getActive,onToggle){
+  const c=$(containerId);
+  const render=()=>{
+    const active=getActive();
+    c.innerHTML="";
+    const mk=(val,label,isAll)=>{
+      const on = isAll ? active.length===0 : active.includes(val);
+      const b=document.createElement("button");
+      b.className="chip"+(on?" active":"");
+      b.textContent=label;
+      b.onclick=()=>{ onToggle(isAll?null:val); render(); };
+      return b;
+    };
+    c.appendChild(mk(null,"전체",true));
+    values.forEach(v=>c.appendChild(mk(v,v,false)));
+  };
+  render();
+}
+
 /* ====================== DRAGONS ====================== */
 function renderDragons(){
   const s=state.dragons;
   let list=DB.dragons.filter(d=>{
-    if(s.grade && d.grade!==s.grade) return false;
+    if(s.grades.length && !s.grades.includes(d.grade)) return false;
     if(s.attack && d.attackType!==s.attack) return false;
-    if(s.source && d.source!==s.source) return false;
-    if(s.element && d.element!==s.element && !d.subElements.includes(s.element)) return false;
+    if(s.sources.length && !s.sources.includes(d.source)) return false;
+    if(s.element && d.element!==s.element) return false;   // 주 속성만
     if(s.owned==="own" && !Store.has(d.name)) return false;
     if(s.owned==="miss" && Store.has(d.name)) return false;
     if(s.search){
@@ -730,9 +750,7 @@ function bind(){
   const d=state.dragons;
   $("#dragon-search").addEventListener("input",e=>{d.search=e.target.value;renderDragons();});
   $("#dragon-owned").addEventListener("change",e=>{d.owned=e.target.value;renderDragons();});
-  $("#dragon-grade").addEventListener("change",e=>{d.grade=e.target.value;renderDragons();});
   $("#dragon-attack").addEventListener("change",e=>{d.attack=e.target.value;renderDragons();});
-  $("#dragon-source").addEventListener("change",e=>{d.source=e.target.value;renderDragons();});
   $("#dragon-sort").addEventListener("change",e=>{d.sort=e.target.value;renderDragons();});
 
   const o=state.orbs;
@@ -772,9 +790,13 @@ async function init(){
   $("#cnt-abilities").textContent=DB.abilities.length;
 
   // 셀렉트 옵션
-  fillSelect($("#dragon-grade"),[...new Set(DB.dragons.map(d=>d.grade))]);
-  fillSelect($("#dragon-source"),[...new Set(DB.dragons.map(d=>d.source))].sort((a,b)=>a.localeCompare(b,"ko")));
   fillSelect($("#orb-grade"),[...new Set(DB.orbs.map(o=>o.grade))]);
+  // 등급·획득처 다중 선택 칩
+  const toggle=(arr,v)=>{ if(v===null){arr.length=0;return;} const i=arr.indexOf(v); if(i>=0)arr.splice(i,1); else arr.push(v); };
+  buildMultiChips("#dragon-grades",[...new Set(DB.dragons.map(d=>d.grade))],
+    ()=>state.dragons.grades,v=>{toggle(state.dragons.grades,v);renderDragons();});
+  buildMultiChips("#dragon-sources",[...new Set(DB.dragons.map(d=>d.source))].sort((a,b)=>a.localeCompare(b,"ko")),
+    ()=>state.dragons.sources,v=>{toggle(state.dragons.sources,v);renderDragons();});
 
   // 속성칩
   const dEls=ELEMENT_ORDER.filter(e=>DB.dragons.some(d=>d.element===e));

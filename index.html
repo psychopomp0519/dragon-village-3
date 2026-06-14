@@ -35,9 +35,7 @@
       <input type="search" id="dragon-search" class="search" placeholder="이름 · 속성 · 특성 · 스킬 검색…" autocomplete="off">
       <div class="selects">
         <select id="dragon-owned"><option value="">전체 보유</option><option value="own">보유만</option><option value="miss">미보유만</option></select>
-        <select id="dragon-grade"><option value="">전체 등급</option></select>
         <select id="dragon-attack"><option value="">물리/마법</option><option value="물리">물리</option><option value="마법">마법</option></select>
-        <select id="dragon-source"><option value="">전체 획득처</option></select>
         <select id="dragon-sort">
           <option value="total">합계 ↓</option>
           <option value="hp">체력 ↓</option>
@@ -50,7 +48,11 @@
         </select>
       </div>
     </div>
-    <div class="chips" id="dragon-elements"></div>
+    <div class="chip-filters">
+      <div class="cf-group"><span class="cf-label">속성</span><div class="chips" id="dragon-elements"></div></div>
+      <div class="cf-group"><span class="cf-label">등급</span><div class="chips" id="dragon-grades"></div></div>
+      <div class="cf-group"><span class="cf-label">획득처</span><div class="chips" id="dragon-sources"></div></div>
+    </div>
     <p class="result-count" id="dragon-count"></p>
     <div class="card-grid" id="dragon-grid"></div>
   </section>
