@@ -9,6 +9,6 @@
  * 테이블/보안정책(RLS) 설정 SQL 은 README "보유 현황 기능 설정" 참고.
  */
 window.SUPABASE_CONFIG = {
-  url: "",
+  url: "https://holzzclvoeixwchepnnn.supabase.co",
   anonKey: ""
 };
