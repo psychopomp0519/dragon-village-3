@@ -16,7 +16,8 @@ const state = {
   dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:"",owned:""},
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
   abilities:{search:""},
-  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null}
+  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null},
+  types:{focus:""}
 };
 
 /* ===== 유틸 ===== */
@@ -27,7 +28,7 @@ const elBadge = e => `<span class="badge badge-el" style="background:${elColor(e
 const gradeBadge = g => `<span class="badge badge-grade grade-${esc(g)}">${esc(g)}</span>`;
 
 async function loadAll(){
-  const names = ["dragons","orbs","abilities","dragon_summary","orb_summary","terms","dragon_notes","orb_notes","breeding_dragons"];
+  const names = ["dragons","orbs","abilities","dragon_summary","orb_summary","terms","dragon_notes","orb_notes","breeding_dragons","type_chart"];
   const res = await Promise.all(names.map(n=>fetch(`data/${n}.json`).then(r=>{
     if(!r.ok) throw new Error(`${n}.json (${r.status})`); return r.json();
   })));
@@ -143,6 +144,7 @@ function openDragon(name){
         <div class="m-row"><div class="t">필살기 · ${esc(d.ultimate)} <small style="color:var(--muted)">(${esc(d.ultimateType)})</small></div>
           <div class="d">${esc(d.ultimateEffect)}<br><small>명중 ${esc(d.accuracy)} / 위력 ${esc(d.power)}</small></div></div>
       </div></div>
+    ${typeSectionFor(d)}
     <div class="m-section"><h4>획득처</h4><div class="m-row"><div class="d">${esc(d.source)}</div></div></div>`;
   $("#m-own").onclick=()=>{ Store.toggle(d.name); openDragon(d.name); };
   openModal();
@@ -527,6 +529,83 @@ function initBreeding(){
   renderBreeding();
 }
 
+/* ====================== TYPES (상성) ====================== */
+const TYPE_SYM = { strong:"◎", normal:"·", weak:"▽", veryweak:"▼" };
+const lvl = (atk,def) => (DB.type_chart.chart[atk] && DB.type_chart.chart[atk][def]) || "normal";
+
+// 한 속성 기준 공격/방어 상성 분류
+function typeRelations(el){
+  const order=DB.type_chart.order;
+  const atk={strong:[],weak:[],veryweak:[]};
+  order.forEach(d=>{ const l=lvl(el,d); if(atk[l]) atk[l].push(d); });
+  const def={strong:[],weak:[],veryweak:[]};       // strong=내가 굉장하게 맞는 약점
+  order.forEach(a=>{ const l=lvl(a,el); if(def[l]) def[l].push(a); });
+  return {atk,def};
+}
+const elList = (arr)=>arr.length?arr.map(e=>elBadge(e)).join(" "):'<span class="muted">—</span>';
+
+function focusCard(el){
+  const r=typeRelations(el);
+  return `<div class="tf-card">
+    <div class="tf-head">${elBadge(el)} <b>${esc(el)}</b> 속성 상성</div>
+    <div class="tf-grid">
+      <div class="tf-col"><h4>⚔️ 이 속성으로 공격할 때</h4>
+        <div class="tf-row"><span class="tf-k strong">굉장함</span>${elList(r.atk.strong)}</div>
+        <div class="tf-row"><span class="tf-k weak">별로</span>${elList(r.atk.weak)}</div>
+        <div class="tf-row"><span class="tf-k veryweak">매우 별로</span>${elList(r.atk.veryweak)}</div>
+      </div>
+      <div class="tf-col"><h4>🛡️ 이 속성으로 맞을 때</h4>
+        <div class="tf-row"><span class="tf-k strong">약점(굉장히 맞음)</span>${elList(r.def.strong)}</div>
+        <div class="tf-row"><span class="tf-k weak">저항(별로)</span>${elList(r.def.weak)}</div>
+        <div class="tf-row"><span class="tf-k veryweak">강저항(매우 별로)</span>${elList(r.def.veryweak)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTypes(){
+  const order=DB.type_chart.order, focus=state.types.focus;
+  // 칩
+  buildElementChips("#type-chips",order,()=>state.types.focus,v=>{state.types.focus=v;renderTypes();});
+  // 범례
+  $("#type-legend").innerHTML=Object.entries(DB.type_chart.levels).map(([k,v])=>
+    `<span class="tl"><span class="tcell ${k}">${TYPE_SYM[k]}</span>${esc(v.label)}${v.mult?` <small>(${esc(v.mult)})</small>`:''}</span>`).join("");
+  // 포커스 카드
+  $("#type-focus").innerHTML = focus ? focusCard(focus) : "";
+  // 매트릭스
+  const head=`<thead><tr><th class="corner">공격＼방어</th>${order.map(d=>
+    `<th class="${focus&&d===focus?'col-focus':''}">${elBadge(d)}</th>`).join("")}</tr></thead>`;
+  const body=`<tbody>${order.map(a=>{
+    const rf=focus&&a===focus;
+    return `<tr class="${rf?'row-focus':''}"><th class="rowh">${elBadge(a)}</th>${order.map(d=>{
+      const l=lvl(a,d), hot=focus&&(a===focus||d===focus);
+      return `<td class="tcell ${l}${hot?' hot':''}" title="${esc(a)}→${esc(d)}: ${esc(DB.type_chart.levels[l].label)}">${TYPE_SYM[l]}</td>`;
+    }).join("")}</tr>`;
+  }).join("")}</tbody>`;
+  $("#type-matrix").innerHTML=head+body;
+}
+
+// 드래곤 상세용 상성 섹션 (element + subElements)
+function typeSectionFor(d){
+  if(!DB.type_chart) return "";
+  const els=[d.element,...(d.subElements||[])].filter(e=>DB.type_chart.order.includes(e));
+  if(!els.length) return "";
+  const blocks=els.map(el=>{
+    const r=typeRelations(el);
+    const line=(label,arr,cls)=>`<div class="tf-row"><span class="tf-k ${cls}">${label}</span>${elList(arr)}</div>`;
+    return `<div class="m-type-block">
+      <div class="m-type-el">${elBadge(el)}</div>
+      <div class="m-type-lines">
+        <div class="m-type-sub">공격</div>
+        ${line("굉장함",r.atk.strong,"strong")}${line("약함",r.atk.weak.concat(r.atk.veryweak),"weak")}
+        <div class="m-type-sub">방어 약점</div>
+        ${line("굉장히 맞음",r.def.strong,"strong")}${line("저항",r.def.weak.concat(r.def.veryweak),"weak")}
+      </div></div>`;
+  }).join("");
+  return `<div class="m-section"><h4>속성 상성</h4>${blocks}
+    ${els.length>1?'<small class="muted">다속성 드래곤은 인게임에서 속성별 상성이 합산 적용됩니다. 위는 속성별 개별 표기입니다.</small>':''}</div>`;
+}
+
 /* ====================== AUTH UI ====================== */
 function renderAuthBox(){
   const box=$("#auth-box");
@@ -634,6 +713,6 @@ async function init(){
 
   renderAuthBox();
   renderDragons(); renderOrbs(); renderAbilities(); renderCodex(); renderCollection();
-  initBreeding();
+  initBreeding(); renderTypes();
 }
 document.addEventListener("DOMContentLoaded",init);

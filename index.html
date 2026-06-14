@@ -19,6 +19,7 @@
       <button class="tab" data-view="orbs">보주 <em id="cnt-orbs">0</em></button>
       <button class="tab" data-view="abilities">특성 <em id="cnt-abilities">0</em></button>
       <button class="tab" data-view="breeding">교배 🧬</button>
+      <button class="tab" data-view="types">상성 ⚔️</button>
       <button class="tab" data-view="collection">내 컬렉션 <em id="cnt-owned">0</em></button>
       <button class="tab" data-view="codex">요약 · 용어</button>
     </nav>
@@ -135,6 +136,15 @@
       </div>
       <div id="bparent-result" class="breed-result"></div>
     </div>
+  </section>
+
+  <!-- ============ TYPES (상성) ============ -->
+  <section id="view-types" class="view">
+    <p class="breed-hint">인게임 '속성 상성 계산기' 기준 14속성 상성표입니다. 속성을 누르면 <b>공격·방어 상성 요약</b>이 표시되고 표에서 강조됩니다. 표는 <b>세로=공격 속성, 가로=방어(받는) 속성</b>입니다.</p>
+    <div class="chips" id="type-chips"></div>
+    <div id="type-focus" class="type-focus"></div>
+    <div class="type-legend" id="type-legend"></div>
+    <div class="table-wrap"><table class="data-table type-matrix" id="type-matrix"></table></div>
   </section>
 
   <!-- ============ COLLECTION ============ -->
