@@ -351,7 +351,7 @@ function bind(){
 
   $("#modal-close").addEventListener("click",closeModal);
   $("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeAuth();}});
 }
 
 /* ===== INIT ===== */
