@@ -290,7 +290,7 @@ function renderAuthBox(){
     box.innerHTML=`<span class="user-email">${esc(Store.getUser().email)}</span><button class="btn btn-sm" id="btn-logout">로그아웃</button>`;
     $("#btn-logout").onclick=()=>Store.signOut();
   } else if(Store.isConfigured()){
-    box.innerHTML=`<button class="btn btn-sm btn-primary" id="btn-login">로그인</button>`;
+    box.innerHTML=`<span class="guest-chip" title="로그인은 선택입니다. 보유 현황은 이 브라우저에 저장됩니다">게스트</span><button class="btn btn-sm btn-primary" id="btn-login">로그인</button>`;
     $("#btn-login").onclick=openAuth;
   } else {
     box.innerHTML=`<span class="guest-chip" title="config.js에 Supabase 키를 넣으면 로그인이 켜집니다">게스트 · 로컬 저장</span>`;
@@ -324,6 +324,7 @@ function bindAuth(){
     const { error }=await Store.signInGoogle();
     if(error) authMsg(error.message,true);
   };
+  $("#auth-guest").onclick=closeAuth;
 }
 
 /* ===== MODAL ===== */
