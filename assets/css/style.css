@@ -80,7 +80,7 @@ select:focus{outline:none;border-color:var(--accent)}
 .statbar{display:grid;grid-template-columns:34px 1fr 40px;align-items:center;gap:8px;font-size:11px}
 .statbar .lbl{color:var(--muted)}
 .statbar .track{height:6px;background:var(--bg2);border-radius:4px;overflow:hidden}
-.statbar .fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px}
+.statbar .fill{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px}
 .statbar .val{text-align:right;color:var(--text);font-weight:700}
 .dcard-foot{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
 .dcard-foot b{color:var(--text);font-weight:700}
@@ -186,7 +186,7 @@ select:focus{outline:none;border-color:var(--accent)}
 .coll-big b{font-size:42px;color:var(--gold);font-weight:900;line-height:1}
 .coll-big span{color:var(--muted)}
 .coll-prog{height:12px;background:var(--bg2);border-radius:8px;overflow:hidden}
-.coll-prog .fill{height:100%;background:linear-gradient(90deg,var(--gold),#ff9d4a);border-radius:8px;transition:width .4s}
+.coll-prog .fill{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ff9d4a);border-radius:8px;transition:width .4s}
 .coll-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
 .coll-stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .coll-stat .k{color:var(--muted);font-size:12px}
@@ -195,7 +195,7 @@ select:focus{outline:none;border-color:var(--accent)}
 .brk-row{display:grid;grid-template-columns:70px 1fr 64px;align-items:center;gap:12px;margin-bottom:7px;font-size:13px}
 .brk-row .nm{display:flex;align-items:center;gap:6px}
 .brk-row .track{height:9px;background:var(--bg2);border-radius:6px;overflow:hidden}
-.brk-row .fill{height:100%;border-radius:6px}
+.brk-row .fill{display:block;height:100%;border-radius:6px}
 .brk-row .num{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .coll-empty{text-align:center;color:var(--muted);padding:40px 20px}
 .coll-empty .btn{margin-top:14px}
