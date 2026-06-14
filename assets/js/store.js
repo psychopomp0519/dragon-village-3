@@ -7,6 +7,8 @@
  * ========================================================== */
 const Store = (() => {
   const LS_KEY = "dv3_owned";
+  const ADMIN_EMAIL = "admin@dv3.com";
+  const DEFAULT_PICKUP = ["파루파루", "닌자 드래곤"];
   const listeners = { change: [], auth: [] };
   let client = null;
   let user = null;
@@ -85,10 +87,28 @@ const Store = (() => {
 
   const signUp = (email, password) => client.auth.signUp({ email, password });
   const signIn = (email, password) => client.auth.signInWithPassword({ email, password });
-  const signInGoogle = () => client.auth.signInWithOAuth({
-    provider: "google", options: { redirectTo: location.href.split("#")[0] }
-  });
   const signOut = () => client.auth.signOut();
+
+  /* ---- 관리자 / 픽업(확률업) ---- */
+  const isAdmin = () => !!(user && user.email === ADMIN_EMAIL);
+  // 픽업 드래곤 이름 배열 로드 (공개 읽기). 없으면 기본값.
+  const loadPickup = async () => {
+    if (configured && client) {
+      try {
+        const { data, error } = await client.from("settings").select("value").eq("key", "pickup").maybeSingle();
+        if (!error && data && Array.isArray(data.value)) return data.value;
+      } catch (e) { console.warn("픽업 로드 실패:", e.message); }
+    }
+    return DEFAULT_PICKUP.slice();
+  };
+  // 픽업 저장 (관리자만). settings 테이블 필요.
+  const savePickup = async (names) => {
+    if (!isAdmin()) return { error: { message: "관리자만 변경할 수 있습니다." } };
+    const { error } = await client.from("settings").upsert({
+      key: "pickup", value: names, updated_at: new Date().toISOString()
+    });
+    return { error };
+  };
 
   const init = async () => {
     owned = loadLocal();
@@ -107,5 +127,6 @@ const Store = (() => {
   };
 
   return { init, on, isConfigured, isCloud, getUser, has, list, size,
-           toggle, clearAll, signUp, signIn, signInGoogle, signOut };
+           toggle, clearAll, signUp, signIn, signOut,
+           isAdmin, loadPickup, savePickup, ADMIN_EMAIL, DEFAULT_PICKUP };
 })();

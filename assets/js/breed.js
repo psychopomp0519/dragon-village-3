@@ -7,6 +7,7 @@
  * ========================================================== */
 const Breed = (() => {
   let DRAGONS = [], BYID = {}, BYNAME = {};
+  let PICKUP = new Set();   // 픽업(확률업) 드래곤 id 집합
   // 티어별 고정확률 예산 (basis point; bp/100 = %)
   const TIER_MAX = { 1:0, 2:0, 3:0, 4:0, 5:1000, 6:600, 7:300, 8:150, 9:0, 10:0 };
 
@@ -14,6 +15,14 @@ const Breed = (() => {
     DRAGONS = data; BYID = {}; BYNAME = {};
     for (const d of data) { BYID[d.id] = d; BYNAME[d.name] = d; }
   };
+
+  /* ---- 픽업(확률업) 설정: 이름 배열 → id 집합 ---- */
+  const setPickup = (names) => {
+    PICKUP = new Set();
+    for (const nm of (names || [])) { const d = BYNAME[nm]; if (d) PICKUP.add(d.id); }
+  };
+  const getPickupNames = () => [...PICKUP].map(id => BYID[id] && BYID[id].name).filter(Boolean);
+  const isPickup = (id) => PICKUP.has(id);
 
   /* ---- 조합 키: 부모 합집합 속성의 크기 1~3 부분조합 ---- */
   const comboKeys = (a, b) => {
@@ -57,13 +66,19 @@ const Breed = (() => {
       const m = fixed[tier], budget = TIER_MAX[tier];
       const o = Object.values(m).reduce((s, v) => s + v, 0);
       const scale = (budget != null && o > budget && o > 0) ? budget / o : 1;
-      for (const did in m) { const c = m[did] * scale / 100; res[did] = c; totalFixed += c; }
+      for (const did in m) {
+        const fp = m[did];
+        let c = fp * scale / 100;
+        if (PICKUP.has(+did)) c += fp * 0.5 / 100;   // 픽업: 기본 고정확률의 절반 가산 (dv3guide be 함수)
+        res[did] = c; totalFixed += c;
+      }
     }
     const p = Math.max(0, 100 - totalFixed);
-    const h = portion.reduce((s, d) => s + (d.portion || 0), 0);
+    // 픽업 가중치 드래곤은 weight ×2.5 (portion + portion×1.5)
+    const wt = d => (d.portion || 0) * (PICKUP.has(d.id) ? 2.5 : 1);
+    const h = portion.reduce((s, d) => s + wt(d), 0);
     for (const d of portion) {
-      const w = d.portion || 0;
-      res[d.id] = h > 0 ? (w / h * p) : 0;
+      res[d.id] = h > 0 ? (wt(d) / h * p) : 0;
     }
     const out = {};
     for (const k in res) if (res[k] > 0) out[k] = res[k];
@@ -126,43 +141,32 @@ const Breed = (() => {
     return limit ? out.slice(0, limit) : out;
   };
 
-  /* ---- 여러 타깃 동시 교배(부모 전부 상이) 최적 배정 ----
-   * 반환: { plan:[{target,a,b,p,ft}], covered:Set, impossible:[ids] }
-   * 우선순위: 커버 수 max → 총 실패시간 min → 총 확률 max
+  /* ---- 여러 타깃을 '하나의 부모 조합'으로 모두 얻을 수 있는지 ----
+   * 부모쌍 하나의 결과 풀에 선택한 타깃들이 모두(또는 최대한 많이) 포함되는지 탐색.
+   * 반환: { pairs:[{a,b,probs:{tid:p},count,minP,sumP}], n, maxCount, impossible:[tid] }
+   * 정렬: 포함 수 desc → 최저확률(병목) desc → 확률합 desc
    */
-  const bestSimultaneous = (targetIds, parentIds, userLevel, perCap = 30) => {
-    const cand = {}, impossible = [];
-    for (const t of targetIds) {
-      const c = combosForTarget(t, parentIds, userLevel, perCap);
-      if (c.length === 0) impossible.push(t); else cand[t] = c;
+  const commonPairs = (targetIds, parentIds, userLevel, limit = 30) => {
+    const tset = targetIds;
+    const everProduced = new Set();
+    let out = [];
+    for (let i = 0; i < parentIds.length; i++) {
+      const a = BYID[parentIds[i]];
+      for (let j = i + 1; j < parentIds.length; j++) {
+        const b = BYID[parentIds[j]];
+        const r = breed(a, b, userLevel);
+        const probs = {}; let count = 0, minP = Infinity, sumP = 0;
+        for (const t of tset) {
+          const p = r[t] || 0;
+          if (p > 0) { probs[t] = p; count++; sumP += p; if (p < minP) minP = p; everProduced.add(t); }
+        }
+        if (count > 0) out.push({ a: a.id, b: b.id, probs, count, minP: count ? minP : 0, sumP });
+      }
     }
-    const solvable = targetIds.filter(t => cand[t]);
-    const n = solvable.length;
-    let best = { count: -1, ft: Infinity, prob: -1, assign: null };
-    const used = new Set();
-    const dfs = (i, count, ft, prob, assign) => {
-      if (count + (n - i) < best.count) return;             // 커버 수 상한 가지치기
-      if (i === n) {
-        if (count > best.count ||
-           (count === best.count && (ft < best.ft - 1e-9 ||
-           (Math.abs(ft - best.ft) < 1e-9 && prob > best.prob))))
-          best = { count, ft, prob, assign: assign.slice() };
-        return;
-      }
-      const t = solvable[i];
-      for (const c of cand[t]) {
-        if (used.has(c.a) || used.has(c.b)) continue;
-        used.add(c.a); used.add(c.b);
-        assign.push({ target: t, a: c.a, b: c.b, p: c.p, ft: c.ft });
-        dfs(i + 1, count + 1, ft + c.ft, prob + c.p, assign);
-        assign.pop(); used.delete(c.a); used.delete(c.b);
-      }
-      dfs(i + 1, count, ft, prob, assign);                  // 이 타깃 건너뛰기
-    };
-    dfs(0, 0, 0, 0, []);
-    const plan = best.assign || [];
-    const covered = new Set(plan.map(x => x.target));
-    return { plan, covered, impossible };
+    out.sort((x, y) => (y.count - x.count) || (y.minP - x.minP) || (y.sumP - x.sumP));
+    const maxCount = out.length ? out[0].count : 0;
+    const impossible = tset.filter(t => !everProduced.has(t));
+    return { pairs: limit ? out.slice(0, limit) : out, n: tset.length, maxCount, impossible };
   };
 
   /* ---- 보유분으로 직접 못 만들 때: 최적 교배 순서(루트) ----
@@ -209,7 +213,8 @@ const Breed = (() => {
 
   return { load, breed, failTime, expect, comboKeys, eligible,
            rareIds, ownedIdSet, parentPool, combosForTarget,
-           bestSimultaneous, route, all, byId, byName, TIER_MAX };
+           commonPairs, route, all, byId, byName, TIER_MAX,
+           setPickup, getPickupNames, isPickup };
 })();
 if (typeof module !== "undefined" && module.exports) module.exports = Breed;
 

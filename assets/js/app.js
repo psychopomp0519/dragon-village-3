@@ -16,7 +16,7 @@ const state = {
   dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:"",owned:""},
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
   abilities:{search:""},
-  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null},
+  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null,pickup:[],pickupEdit:false},
   types:{focus:""}
 };
 
@@ -300,10 +300,10 @@ const bRarity = r => ({3:"희귀",4:"영웅",5:"전설"})[r]||"";
 const breedOwnedSet = () => Breed.ownedIdSet(Store.list());
 // 드래곤 한 마리를 작은 칩으로 (클릭 시 도감 상세)
 function bPill(d, ownSet){
-  const own = ownSet.has(d.id), inDex = DB.dragons.some(x=>x.name===d.name);
-  return `<span class="bpill${own?' owned':''}${inDex?' link':''}"${inDex?` data-dragon="${esc(d.name)}"`:''} title="${esc(d.name)}${inDex?' · 클릭하면 도감 상세':''}">
+  const own = ownSet.has(d.id), inDex = DB.dragons.some(x=>x.name===d.name), pick = Breed.isPickup(d.id);
+  return `<span class="bpill${own?' owned':''}${inDex?' link':''}${pick?' pickup':''}"${inDex?` data-dragon="${esc(d.name)}"`:''} title="${esc(d.name)}${pick?' · 픽업(확률업)':''}${inDex?' · 클릭하면 도감 상세':''}">
     <span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>${esc(d.name)}
-    <span class="bpill-t">T${d.tier}</span>${own?'<span class="bpill-own">★</span>':''}</span>`;
+    <span class="bpill-t">T${d.tier}</span>${pick?'<span class="bpill-pk">픽업</span>':''}${own?'<span class="bpill-own">★</span>':''}</span>`;
 }
 // 기대 횟수·누적 시간 요약
 function estStr(p, ft, targetId){
@@ -390,6 +390,17 @@ function bPairLine(a,b,p,ft,ownSet,targetId){
       <span class="ft">${esc(estStr(p,ft,targetId))}</span></span>
   </div>`;
 }
+// 한 조합으로 여러 목표를 낼 때: 부모쌍 + 목표별 확률
+function commonPairLine(p, ownSet){
+  const tags=Object.keys(p.probs).map(id=>{
+    const d=Breed.byId(+id);
+    return `<span class="cp-t">${esc(d.name)} <b>${p.probs[id].toFixed(2)}%</b></span>`;
+  }).join("");
+  return `<div class="bpair cp">
+    <span class="bpair-parents">${bPill(Breed.byId(p.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(p.b),ownSet)}</span>
+    <span class="cp-targets">${tags}</span>
+  </div>`;
+}
 function renderBreedTarget(){
   const s=state.breeding, ownSet=breedOwnedSet();
   // 칩
@@ -429,32 +440,24 @@ function renderBreedTarget(){
   }
   html+=`</div>`;
 
-  // 2) 동시 교배 (2마리 이상)
+  // 2) 한 조합으로 모두 (2마리 이상) — 선택한 드래곤을 모두 낼 수 있는 단일 부모 조합
   if(s.targets.length>=2){
-    const sim=Breed.bestSimultaneous(s.targets,pool,s.level);
-    const all=sim.covered.size===s.targets.length;
-    const ests=sim.plan.map(x=>Breed.expect(x.p,x.ft,x.target)||{total:0});
-    const parallel=ests.reduce((m,e)=>Math.max(m,e.total),0);   // 동시 진행 → 가장 느린 칸
-    const sumTime=ests.reduce((a,e)=>a+e.total,0);               // 누적 교배시간 합
-    html+=`<div class="breed-sec"><h3>동시 교배 분석 <small>부모를 겹치지 않게 동시에</small></h3>`;
-    html+=`<div class="sim-banner ${all?'ok':'warn'}">${all
-      ? `✅ 선택한 ${s.targets.length}마리 <b>모두 동시 교배 가능</b>합니다.`
-      : `⚠️ ${s.targets.length}마리 동시 교배는 <b>불가능</b>합니다. 부모가 겹치지 않게 만들 수 있는 최대치는 <b>${sim.covered.size}마리</b>입니다.`}
-      ${sim.plan.length?`<span class="sim-ft">병렬 예상 완료 ~${fmtTime(parallel)} · 누적 교배시간 ~${fmtTime(sumTime)}</span>`:''}</div>`;
-    if(sim.plan.length){
-      html+=`<div class="sim-grid">${sim.plan.map(x=>`
-        <div class="sim-slot">
-          <div class="sim-target">${bPill(Breed.byId(x.target),ownSet)}</div>
-          <div class="sim-recipe">${bPill(Breed.byId(x.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(x.b),ownSet)}</div>
-          <div class="sim-prob"><b>${x.p.toFixed(2)}%</b> · ${esc(estStr(x.p,x.ft,x.target))}</div>
-        </div>`).join("")}</div>`;
+    const cp=Breed.commonPairs(s.targets,pool,s.level);
+    const full=cp.pairs.filter(p=>p.count===cp.n);
+    html+=`<div class="breed-sec"><h3>한 조합으로 모두 <small>선택한 드래곤을 모두 낼 수 있는 부모 조합</small></h3>`;
+    if(full.length){
+      html+=`<div class="sim-banner ok">✅ 선택한 ${cp.n}마리를 <b>모두 낼 수 있는 부모 조합</b>이 ${full.length}개 있습니다. <span class="sim-ft">아래 조합으로 교배하면 모든 목표가 결과로 등장합니다(확률 동시 표기).</span></div>`;
+      html+=`<div class="bc-list">${full.slice(0,12).map(p=>commonPairLine(p,ownSet)).join("")}</div>`;
+    } else if(cp.maxCount>=1){
+      const best=cp.pairs.filter(p=>p.count===cp.maxCount);
+      html+=`<div class="sim-banner warn">⚠️ 선택한 ${cp.n}마리를 <b>한 조합으로 모두 내는 방법은 없습니다.</b> 한 조합으로 최대 <b>${cp.maxCount}마리</b>까지 가능합니다.</div>`;
+      html+=`<div class="bc-list">${best.slice(0,12).map(p=>commonPairLine(p,ownSet)).join("")}</div>`;
+    } else {
+      html+=`<div class="sim-banner warn">⚠️ 선택한 목표를 내는 부모 조합을 찾지 못했습니다.</div>`;
     }
-    const excluded=s.targets.filter(t=>!sim.covered.has(t));
-    if(excluded.length){
-      html+=`<div class="sim-excluded"><b>이번에 제외된 목표:</b> ${excluded.map(t=>{
-        const noCombo=sim.impossible.includes(t);
-        return `<span class="exc">${esc(Breed.byId(t).name)} <small>(${noCombo?'가능 조합 없음':'부모 충돌'})</small></span>`;
-      }).join(" ")}</div>`;
+    if(cp.impossible.length){
+      html+=`<div class="sim-excluded"><b>어떤 조합으로도 안 나오는 목표:</b> ${cp.impossible.map(t=>
+        `<span class="exc">${esc(Breed.byId(t).name)}</span>`).join(" ")} <small>아래 '교배 순서'에서 단계별 경로를 확인하세요.</small></div>`;
     }
     html+=`</div>`;
   }
@@ -493,21 +496,68 @@ function renderBreedTarget(){
   box.innerHTML=html;
 }
 
+function renderPickup(){
+  const s=state.breeding, admin=Store.isAdmin(), box=$("#breed-pickup");
+  const names=Breed.getPickupNames();
+  const chips=names.length
+    ? names.map(n=>{const d=Breed.byName(n);return d?bPill(d,breedOwnedSet()):`<span class="bpill">${esc(n)}</span>`;}).join(" ")
+    : '<span class="muted">없음</span>';
+  let html=`<div class="pk-bar"><span class="pk-icon">🌟</span>
+    <span class="pk-label">픽업(확률업) 적용 중</span> ${chips}
+    <span class="pk-note">고정확률 +기본의 50% · 가중치 ×2.5</span>`;
+  if(admin) html+=`<button class="btn btn-sm" id="pk-edit">${s.pickupEdit?'닫기':'픽업 편집'}</button>`;
+  html+=`</div>`;
+  if(admin && s.pickupEdit){
+    const cur=names.map(n=>{const d=Breed.byName(n);return d?`<span class="tchip"><span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>${esc(n)}<button class="bx" data-pkdel="${esc(n)}">✕</button></span>`:'';}).join("");
+    html+=`<div class="pk-editor">
+      <div class="pk-edit-row">
+        <div class="breed-combo" style="flex:1;min-width:220px">
+          <input type="search" id="pk-input" class="search" placeholder="픽업에 추가할 드래곤 검색…" autocomplete="off">
+          <div class="combo-list" id="pk-list" hidden></div>
+        </div>
+      </div>
+      <div class="breed-chosen" style="margin:10px 0 0">${cur||'<span class="muted">픽업 없음</span>'}</div>
+      <p class="pk-msg" id="pk-msg"></p>
+    </div>`;
+  }
+  box.innerHTML=html;
+  if(admin){
+    const eb=$("#pk-edit"); if(eb) eb.onclick=()=>{ s.pickupEdit=!s.pickupEdit; renderBreeding(); };
+    if(s.pickupEdit){
+      $$("#breed-pickup .bx").forEach(b=>b.onclick=()=>setPickupAndSave(Breed.getPickupNames().filter(n=>n!==b.dataset.pkdel)));
+      makeCombo("#pk-input","#pk-list",
+        q=>breedMatches(q).filter(d=>!Breed.getPickupNames().includes(d.name)),
+        id=>{ const nm=Breed.byId(id).name; setPickupAndSave([...Breed.getPickupNames(),nm]); });
+    }
+  }
+}
+async function setPickupAndSave(names){
+  Breed.setPickup(names); state.breeding.pickup=names;
+  renderBreeding();
+  const { error }=await Store.savePickup(names);
+  const m=$("#pk-msg");
+  if(m) m.textContent = error ? `저장 실패: ${error.message} (settings 테이블/SQL 필요)` : "저장됨 — 모든 사용자에게 적용됩니다.";
+}
+
 function renderBreeding(){
   const s=state.breeding;
   // 모드 전환
   $$("#breed-modes .bmode").forEach(b=>b.classList.toggle("active",b.dataset.bmode===s.mode));
   $("#bpanel-target").hidden = s.mode!=="target";
   $("#bpanel-parent").hidden = s.mode!=="parent";
+  // 픽업 바
+  renderPickup();
   // 보유 요약
   const ownSet=breedOwnedSet();
   $("#breed-own").innerHTML=`보유 부모풀 <b>${Breed.parentPool(ownSet,true).length}</b>종 <small>(희귀 10종 기본 포함)</small>`;
   if(s.mode==="target") renderBreedTarget(); else renderBreedParent();
 }
 
-function initBreeding(){
+async function initBreeding(){
   const s=state.breeding;
   Breed.load(DB.breeding_dragons);
+  // 픽업(확률업) 로드 → 엔진 반영
+  const pk=await Store.loadPickup(); s.pickup=pk; Breed.setPickup(pk);
   // 드래곤 칩/이름 클릭 → 도감 상세 (이벤트 위임)
   $("#view-breeding").addEventListener("click",e=>{
     if(e.target.closest(".bx")||e.target.closest(".combo-item")) return;
@@ -642,11 +692,6 @@ function bindAuth(){
     else if(data.session) closeAuth();
     else authMsg("확인 메일을 보냈습니다. 메일의 링크를 눌러 인증을 완료하세요.");
   };
-  $("#auth-google").onclick=async()=>{
-    authMsg("Google 로그인으로 이동…");
-    const { error }=await Store.signInGoogle();
-    if(error) authMsg(error.message,true);
-  };
   $("#auth-guest").onclick=closeAuth;
 }
 
@@ -693,7 +738,7 @@ async function init(){
   // 저장소(인증·보유현황) 초기화 + 변경 반영
   await Store.init();
   Store.on("change",()=>{ renderDragons(); renderCollection(); renderBreeding(); });
-  Store.on("auth",()=>{ renderAuthBox(); renderCollection(); });
+  Store.on("auth",()=>{ renderAuthBox(); renderCollection(); renderBreeding(); });
 
   // 카운트
   $("#cnt-dragons").textContent=DB.dragons.length;
@@ -713,6 +758,7 @@ async function init(){
 
   renderAuthBox();
   renderDragons(); renderOrbs(); renderAbilities(); renderCodex(); renderCollection();
-  initBreeding(); renderTypes();
+  renderTypes();
+  await initBreeding();
 }
 document.addEventListener("DOMContentLoaded",init);

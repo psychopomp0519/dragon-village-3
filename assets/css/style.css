@@ -363,3 +363,23 @@ select:focus{outline:none;border-color:var(--accent)}
 .m-type-sub{font-size:11px;color:var(--muted);font-weight:700;margin:4px 0 3px}
 .m-type-block .tf-row{margin-bottom:4px}
 @media(max-width:560px){.tf-grid{grid-template-columns:1fr}}
+
+/* ====================== 픽업(확률업) ====================== */
+.breed-pickup{margin:10px 0 4px}
+.pk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:rgba(255,207,92,.1);
+  border:1px solid rgba(255,207,92,.4);border-radius:12px;padding:10px 14px;font-size:13px}
+.pk-icon{font-size:15px}
+.pk-label{font-weight:700;color:var(--gold)}
+.pk-note{color:var(--muted);font-size:12px;margin-left:auto}
+.pk-bar .btn{margin-left:8px}
+.bpill.pickup{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,207,92,.3) inset}
+.bpill-pk{background:var(--gold);color:#3a2c00;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px}
+.pk-editor{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:8px}
+.pk-edit-row{display:flex;gap:10px}
+.pk-msg{font-size:12px;color:var(--accent2);margin-top:8px;min-height:14px}
+
+/* 한 조합으로 모두 — 목표별 확률 */
+.bpair.cp{align-items:flex-start}
+.cp-targets{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.cp-t{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:12px}
+.cp-t b{color:var(--gold);margin-left:3px}
