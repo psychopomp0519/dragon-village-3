@@ -10,5 +10,5 @@
  */
 window.SUPABASE_CONFIG = {
   url: "https://holzzclvoeixwchepnnn.supabase.co",
-  anonKey: ""
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvbHp6Y2x2b2VpeHdjaGVwbm5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MjY2MDksImV4cCI6MjA5NzAwMjYwOX0.-ruXvk4QV5plFwte9x53pYRfMa1v8t0rfK8cedjq0OU"
 };
