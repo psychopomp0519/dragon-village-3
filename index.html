@@ -18,6 +18,7 @@
       <button class="tab active" data-view="dragons">드래곤 <em id="cnt-dragons">0</em></button>
       <button class="tab" data-view="orbs">보주 <em id="cnt-orbs">0</em></button>
       <button class="tab" data-view="abilities">특성 <em id="cnt-abilities">0</em></button>
+      <button class="tab" data-view="breeding">교배 🧬</button>
       <button class="tab" data-view="collection">내 컬렉션 <em id="cnt-owned">0</em></button>
       <button class="tab" data-view="codex">요약 · 용어</button>
     </nav>
@@ -89,6 +90,53 @@
     <div class="ability-grid" id="ability-grid"></div>
   </section>
 
+  <!-- ============ BREEDING ============ -->
+  <section id="view-breeding" class="view">
+    <div class="breed-head">
+      <div class="breed-modes" id="breed-modes">
+        <button class="bmode active" data-bmode="target">🎯 목표로 찾기</button>
+        <button class="bmode" data-bmode="parent">👪 부모로 찾기</button>
+      </div>
+      <div class="breed-ctx">
+        <label class="breed-lvl">테이머 Lv <input type="number" id="breed-level" min="1" max="99" value="28"></label>
+        <label class="breed-chk"><input type="checkbox" id="breed-ownedonly" checked> 보유 드래곤만 사용</label>
+        <span class="breed-own" id="breed-own"></span>
+      </div>
+    </div>
+
+    <!-- 목표로 찾기 -->
+    <div class="bmode-panel" id="bpanel-target">
+      <p class="breed-hint">만들고 싶은 드래곤을 검색해 추가하세요. 여러 마리를 고르면 <b>동시 교배(부모 겹침 없이)</b> 가능 여부와 최대 조합을 분석합니다. 보유분으로 직접 못 만들면 <b>최적 교배 순서</b>를 제안합니다.</p>
+      <div class="breed-combo">
+        <input type="search" id="btarget-input" class="search" placeholder="목표 드래곤 검색 후 선택…" autocomplete="off">
+        <div class="combo-list" id="btarget-list" hidden></div>
+      </div>
+      <div class="breed-chosen" id="btarget-chosen"></div>
+      <div id="btarget-result" class="breed-result"></div>
+    </div>
+
+    <!-- 부모로 찾기 -->
+    <div class="bmode-panel" id="bpanel-parent" hidden>
+      <p class="breed-hint">부모 두 마리를 고르면 나올 수 있는 모든 드래곤과 확률·교배/부화 시간을 보여줍니다.</p>
+      <div class="breed-parents">
+        <div class="breed-combo">
+          <span class="bp-label">부모 1</span>
+          <input type="search" id="bp1-input" class="search" placeholder="부모 1 검색…" autocomplete="off">
+          <div class="combo-list" id="bp1-list" hidden></div>
+          <div class="bp-chosen" id="bp1-chosen"></div>
+        </div>
+        <span class="breed-x">×</span>
+        <div class="breed-combo">
+          <span class="bp-label">부모 2</span>
+          <input type="search" id="bp2-input" class="search" placeholder="부모 2 검색…" autocomplete="off">
+          <div class="combo-list" id="bp2-list" hidden></div>
+          <div class="bp-chosen" id="bp2-chosen"></div>
+        </div>
+      </div>
+      <div id="bparent-result" class="breed-result"></div>
+    </div>
+  </section>
+
   <!-- ============ COLLECTION ============ -->
   <section id="view-collection" class="view">
     <div id="collection-body"></div>
@@ -153,6 +201,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/store.js"></script>
+<script src="assets/js/breed.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>

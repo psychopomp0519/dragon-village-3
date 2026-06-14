@@ -15,7 +15,8 @@ const DB = {};
 const state = {
   dragons:{search:"",grade:"",attack:"",source:"",sort:"total",element:"",owned:""},
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
-  abilities:{search:""}
+  abilities:{search:""},
+  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null}
 };
 
 /* ===== 유틸 ===== */
@@ -26,7 +27,7 @@ const elBadge = e => `<span class="badge badge-el" style="background:${elColor(e
 const gradeBadge = g => `<span class="badge badge-grade grade-${esc(g)}">${esc(g)}</span>`;
 
 async function loadAll(){
-  const names = ["dragons","orbs","abilities","dragon_summary","orb_summary","terms","dragon_notes","orb_notes"];
+  const names = ["dragons","orbs","abilities","dragon_summary","orb_summary","terms","dragon_notes","orb_notes","breeding_dragons"];
   const res = await Promise.all(names.map(n=>fetch(`data/${n}.json`).then(r=>{
     if(!r.ok) throw new Error(`${n}.json (${r.status})`); return r.json();
   })));
@@ -283,6 +284,221 @@ function brkRow(label,o,t,color){
 }
 function gradeColorVar(g){return ({"전설":"var(--legend)","영웅":"var(--hero)","희귀":"var(--rare)"})[g]||"var(--accent)";}
 
+/* ====================== BREEDING ====================== */
+const fmtTime = s => {
+  s = Math.round(s||0);
+  if (s < 60) return `${s}초`;
+  if (s < 3600) return `${Math.round(s/60)}분`;
+  const h = Math.floor(s/3600), m = Math.round((s%3600)/60);
+  return m ? `${h}시간 ${m}분` : `${h}시간`;
+};
+const bEls = d => (d.elementNames||[]).map(e=>elBadge(e)).join("");
+const bRarity = r => ({3:"희귀",4:"영웅",5:"전설"})[r]||"";
+// 교배용 보유 id 집합 (희귀 10종 항상 포함)
+const breedOwnedSet = () => Breed.ownedIdSet(Store.list());
+// 드래곤 한 마리를 작은 칩으로
+function bPill(d, ownSet){
+  const own = ownSet.has(d.id);
+  return `<span class="bpill${own?' owned':''}" title="${own?'보유':'미보유'}">
+    <span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>${esc(d.name)}
+    <span class="bpill-t">T${d.tier}</span>${own?'<span class="bpill-own">★</span>':''}</span>`;
+}
+
+/* 콤보박스(검색→선택) 헬퍼 */
+function makeCombo(inputSel, listSel, getMatches, onPick){
+  const inp=$(inputSel), list=$(listSel);
+  const draw=()=>{
+    const q=inp.value.trim().toLowerCase();
+    const items=getMatches(q).slice(0,40);
+    list.innerHTML = items.length
+      ? items.map(d=>`<button type="button" class="combo-item" data-id="${d.id}">
+          <span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>
+          <b>${esc(d.name)}</b> <span class="ci-meta">${esc(bRarity(d.rarity))} · T${d.tier} · ${esc(d.elementNames.join("·"))}</span>
+        </button>`).join("")
+      : `<div class="combo-empty">결과 없음</div>`;
+    list.hidden=false;
+  };
+  inp.addEventListener("input",draw);
+  inp.addEventListener("focus",draw);
+  list.addEventListener("click",e=>{
+    const b=e.target.closest(".combo-item"); if(!b) return;
+    onPick(+b.dataset.id); list.hidden=true;
+  });
+  document.addEventListener("click",e=>{
+    if(!e.target.closest(inputSel) && !e.target.closest(listSel)) list.hidden=true;
+  });
+}
+
+function breedMatches(q, opts={}){
+  let list = Breed.all();
+  if(opts.parentOnly) list=list.filter(d=>d.canBreedAsParent);
+  if(opts.breedableOnly) list=list.filter(d=>d.drop==="breed_normal");
+  if(q) list=list.filter(d=>d.name.toLowerCase().includes(q)||d.elementNames.join(" ").toLowerCase().includes(q)||(d.code||"").includes(q));
+  return list.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+}
+
+/* ---- 부모로 찾기 ---- */
+function renderBreedParent(){
+  const s=state.breeding, ownSet=breedOwnedSet(), box=$("#bparent-result");
+  const set=(slot,id)=>{ const c=$("#bp"+slot+"-chosen"); const d=id?Breed.byId(id):null;
+    c.innerHTML = d ? `${bPill(d,ownSet)} <button class="bx" data-clear="${slot}">✕</button>` : ""; };
+  set(1,s.p1); set(2,s.p2);
+  $$("#bpanel-parent .bx").forEach(b=>b.onclick=()=>{ s["p"+b.dataset.clear]=null;
+    $("#bp"+b.dataset.clear+"-input").value=""; renderBreedParent(); });
+
+  if(!s.p1||!s.p2){ box.innerHTML=`<p class="breed-empty">부모 두 마리를 모두 선택하세요.</p>`; return; }
+  if(s.p1===s.p2){ box.innerHTML=`<p class="breed-empty warn">같은 품종끼리는 교배할 수 없습니다. 서로 다른 드래곤을 고르세요.</p>`; return; }
+  const a=Breed.byId(s.p1), b=Breed.byId(s.p2);
+  const out=Breed.breed(a,b,s.level);
+  const rows=Object.keys(out).map(id=>({d:Breed.byId(+id),p:out[id]})).sort((x,y)=>y.p-x.p);
+  box.innerHTML=`
+    <div class="breed-pairhead">${bPill(a,ownSet)} <span class="breed-x">×</span> ${bPill(b,ownSet)}
+      <span class="breed-note">결과 ${rows.length}종 · 확률 합 100%</span></div>
+    <div class="table-wrap"><table class="data-table breed-table">
+      <thead><tr><th>결과 드래곤</th><th>속성</th><th>등급</th><th>티어</th><th>확률</th><th>교배시간</th><th>부화시간</th><th>보유</th></tr></thead>
+      <tbody>${rows.map(({d,p})=>`<tr${ownSet.has(d.id)?' class="is-own"':''}>
+        <td class="nm">${esc(d.name)}</td>
+        <td>${bEls(d)}</td>
+        <td>${esc(bRarity(d.rarity))}</td>
+        <td class="num">${d.tier}</td>
+        <td class="num"><b>${p.toFixed(2)}%</b><span class="pbar"><span style="width:${Math.min(100,p)}%"></span></span></td>
+        <td class="num">${fmtTime(d.breedingSeconds)}</td>
+        <td class="num">${fmtTime(d.hatchingSeconds)}</td>
+        <td>${ownSet.has(d.id)?'★':'—'}</td>
+      </tr>`).join("")}</tbody>
+    </table></div>`;
+}
+
+/* ---- 목표로 찾기 ---- */
+function bPairLine(a,b,p,ft,ownSet){
+  return `<div class="bpair">
+    <span class="bpair-parents">${bPill(Breed.byId(a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(b),ownSet)}</span>
+    <span class="bpair-stat"><b class="prob">${p.toFixed(2)}%</b><span class="ft">실패 ${fmtTime(ft)}</span></span>
+  </div>`;
+}
+function renderBreedTarget(){
+  const s=state.breeding, ownSet=breedOwnedSet();
+  // 칩
+  $("#btarget-chosen").innerHTML = s.targets.length
+    ? s.targets.map(id=>{const d=Breed.byId(id);
+        return `<span class="tchip" style="--el:${elColor(d.elementNames[0])}">${esc(d.name)} <span class="tchip-t">T${d.tier}</span><button class="bx" data-del="${id}">✕</button></span>`;}).join("")
+      + `<button class="btn btn-sm tclear" id="btarget-clear">모두 비우기</button>`
+    : `<span class="breed-empty">아직 선택한 목표가 없습니다.</span>`;
+  $$("#btarget-chosen .bx").forEach(b=>b.onclick=()=>{ s.targets=s.targets.filter(x=>x!==+b.dataset.del); renderBreedTarget(); });
+  const clr=$("#btarget-clear"); if(clr) clr.onclick=()=>{ s.targets=[]; renderBreedTarget(); };
+
+  const box=$("#btarget-result");
+  if(!s.targets.length){ box.innerHTML=""; return; }
+
+  const pool=Breed.parentPool(ownSet, s.ownedOnly);
+  const startIds=[...ownSet];
+  let html="";
+
+  // 1) 개별 최적 조합
+  const direct={}; // id -> combos
+  html+=`<div class="breed-sec"><h3>개별 최적 조합 <small>${s.ownedOnly?'보유 부모 기준':'전체 드래곤 기준'}</small></h3>`;
+  for(const t of s.targets){
+    const d=Breed.byId(t);
+    const combos=Breed.combosForTarget(t,pool,s.level,8);
+    direct[t]=combos;
+    if(combos.length){
+      const top=combos[0];
+      html+=`<div class="breed-card">
+        <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">가능 조합 ${combos.length}쌍 · 최고 <b>${top.p.toFixed(2)}%</b></span></div>
+        <div class="bc-list">${combos.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet)).join("")}</div>
+      </div>`;
+    } else {
+      html+=`<div class="breed-card no">
+        <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">${s.ownedOnly?'보유 부모로 직접 만들 수 있는 조합이 없습니다':'직접 교배 조합이 없습니다'}</span></div>
+      </div>`;
+    }
+  }
+  html+=`</div>`;
+
+  // 2) 동시 교배 (2마리 이상)
+  if(s.targets.length>=2){
+    const sim=Breed.bestSimultaneous(s.targets,pool,s.level);
+    const all=sim.covered.size===s.targets.length;
+    const totFt=sim.plan.reduce((a,x)=>a+x.ft,0);
+    html+=`<div class="breed-sec"><h3>동시 교배 분석 <small>부모를 겹치지 않게 동시에</small></h3>`;
+    html+=`<div class="sim-banner ${all?'ok':'warn'}">${all
+      ? `✅ 선택한 ${s.targets.length}마리 <b>모두 동시 교배 가능</b>합니다.`
+      : `⚠️ ${s.targets.length}마리 동시 교배는 <b>불가능</b>합니다. 부모가 겹치지 않게 만들 수 있는 최대치는 <b>${sim.covered.size}마리</b>입니다.`}
+      ${sim.plan.length?`<span class="sim-ft">총 실패시간 합 ${fmtTime(totFt)}</span>`:''}</div>`;
+    if(sim.plan.length){
+      html+=`<div class="sim-grid">${sim.plan.map(x=>`
+        <div class="sim-slot">
+          <div class="sim-target">${bPill(Breed.byId(x.target),ownSet)}</div>
+          <div class="sim-recipe">${bPill(Breed.byId(x.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(x.b),ownSet)}</div>
+          <div class="sim-prob"><b>${x.p.toFixed(2)}%</b> · 실패 ${fmtTime(x.ft)}</div>
+        </div>`).join("")}</div>`;
+    }
+    const excluded=s.targets.filter(t=>!sim.covered.has(t));
+    if(excluded.length){
+      html+=`<div class="sim-excluded"><b>이번에 제외된 목표:</b> ${excluded.map(t=>{
+        const noCombo=sim.impossible.includes(t);
+        return `<span class="exc">${esc(Breed.byId(t).name)} <small>(${noCombo?'가능 조합 없음':'부모 충돌'})</small></span>`;
+      }).join(" ")}</div>`;
+    }
+    html+=`</div>`;
+  }
+
+  // 3) 보유분으로 직접 불가 → 교배 순서(루트)
+  const needRoute=s.targets.filter(t=>!(direct[t]&&direct[t].length));
+  if(needRoute.length){
+    html+=`<div class="breed-sec"><h3>최적 교배 순서 <small>보유분으로 직접 못 만드는 목표</small></h3>`;
+    for(const t of needRoute){
+      const d=Breed.byId(t);
+      const steps=Breed.route(t,startIds,s.level);
+      if(steps&&steps.length){
+        html+=`<div class="route-card">
+          <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${steps.length}단계 — 중간 드래곤을 먼저 교배하세요</span></div>
+          <ol class="route-steps">${steps.map(st=>`<li>
+            ${bPill(Breed.byId(st.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(st.b),ownSet)}
+            <span class="route-arrow">→</span> ${bPill(Breed.byId(st.result),ownSet)}
+            <span class="route-p">${st.p.toFixed(2)}%</span></li>`).join("")}</ol>
+        </div>`;
+      } else {
+        html+=`<div class="route-card no"><div class="bc-head">${bPill(d,ownSet)}
+          <span class="bc-meta warn">현재 보유(+희귀 기본)로는 도달할 수 없습니다. 필요한 부모 드래곤을 추가로 확보해야 합니다.</span></div></div>`;
+      }
+    }
+    html+=`</div>`;
+  }
+
+  box.innerHTML=html;
+}
+
+function renderBreeding(){
+  const s=state.breeding;
+  // 모드 전환
+  $$("#breed-modes .bmode").forEach(b=>b.classList.toggle("active",b.dataset.bmode===s.mode));
+  $("#bpanel-target").hidden = s.mode!=="target";
+  $("#bpanel-parent").hidden = s.mode!=="parent";
+  // 보유 요약
+  const ownSet=breedOwnedSet();
+  $("#breed-own").innerHTML=`보유 부모풀 <b>${Breed.parentPool(ownSet,true).length}</b>종 <small>(희귀 10종 기본 포함)</small>`;
+  if(s.mode==="target") renderBreedTarget(); else renderBreedParent();
+}
+
+function initBreeding(){
+  const s=state.breeding;
+  Breed.load(DB.breeding_dragons);
+  // 모드
+  $$("#breed-modes .bmode").forEach(b=>b.onclick=()=>{ s.mode=b.dataset.bmode; renderBreeding(); });
+  // 컨텍스트
+  $("#breed-level").addEventListener("input",e=>{ s.level=Math.max(1,Math.min(99,+e.target.value||1)); renderBreeding(); });
+  $("#breed-ownedonly").addEventListener("change",e=>{ s.ownedOnly=e.target.checked; renderBreeding(); });
+  // 목표 콤보
+  makeCombo("#btarget-input","#btarget-list",
+    q=>breedMatches(q,{breedableOnly:true}).filter(d=>!s.targets.includes(d.id)),
+    id=>{ if(!s.targets.includes(id)) s.targets.push(id); $("#btarget-input").value=""; renderBreedTarget(); });
+  // 부모 콤보 ×2
+  makeCombo("#bp1-input","#bp1-list", q=>breedMatches(q,{parentOnly:true}), id=>{ s.p1=id; $("#bp1-input").value=""; renderBreedParent(); });
+  makeCombo("#bp2-input","#bp2-list", q=>breedMatches(q,{parentOnly:true}), id=>{ s.p2=id; $("#bp2-input").value=""; renderBreedParent(); });
+  renderBreeding();
+}
+
 /* ====================== AUTH UI ====================== */
 function renderAuthBox(){
   const box=$("#auth-box");
@@ -369,7 +585,7 @@ async function init(){
 
   // 저장소(인증·보유현황) 초기화 + 변경 반영
   await Store.init();
-  Store.on("change",()=>{ renderDragons(); renderCollection(); });
+  Store.on("change",()=>{ renderDragons(); renderCollection(); renderBreeding(); });
   Store.on("auth",()=>{ renderAuthBox(); renderCollection(); });
 
   // 카운트
@@ -390,5 +606,6 @@ async function init(){
 
   renderAuthBox();
   renderDragons(); renderOrbs(); renderAbilities(); renderCodex(); renderCollection();
+  initBreeding();
 }
 document.addEventListener("DOMContentLoaded",init);

@@ -208,3 +208,110 @@ select:focus{outline:none;border-color:var(--accent)}
   .header-inner{gap:10px}
   .auth-box .user-email{max-width:110px}
 }
+
+/* ====================== BREEDING ====================== */
+.breed-head{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.breed-modes{display:flex;gap:8px}
+.bmode{background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:10px;
+  padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+.bmode:hover{color:var(--text);border-color:var(--accent)}
+.bmode.active{background:linear-gradient(135deg,var(--accent),#5a4fd6);color:#fff;border-color:transparent}
+.breed-ctx{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:13px;color:var(--muted)}
+.breed-lvl input{width:58px;background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:6px 8px;font-size:13px;margin-left:4px}
+.breed-chk{display:flex;align-items:center;gap:6px;cursor:pointer}
+.breed-chk input{accent-color:var(--accent)}
+.breed-own b{color:var(--gold)}
+.breed-hint{color:var(--muted);font-size:13px;margin-bottom:12px;line-height:1.6}
+.breed-hint b{color:var(--text)}
+
+/* 콤보박스 */
+.breed-combo{position:relative}
+.combo-list{position:absolute;z-index:40;left:0;right:0;top:calc(100% + 4px);max-height:320px;overflow:auto;
+  background:var(--panel2);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px}
+.combo-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;
+  color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px}
+.combo-item:hover{background:var(--panel)}
+.combo-item .ci-meta{color:var(--muted);font-size:12px;margin-left:auto}
+.combo-empty{padding:14px;text-align:center;color:var(--muted);font-size:13px}
+.bpill-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 auto}
+
+/* 드래곤 칩(pill) */
+.bpill{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;white-space:nowrap}
+.bpill.owned{border-color:var(--gold)}
+.bpill-t{color:var(--muted);font-size:11px;font-weight:700}
+.bpill-own{color:var(--gold)}
+
+/* 선택된 목표 칩 */
+.breed-chosen{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.tchip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--el,var(--accent));
+  border-radius:999px;padding:6px 8px 6px 13px;font-size:13px;font-weight:700}
+.tchip-t{color:var(--muted);font-size:11px}
+.tchip .bx,.bpill .bx,.bp-chosen .bx{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12px;padding:2px 4px}
+.tchip .bx:hover{color:#ff5c8a}
+.tclear{margin-left:4px}
+
+/* 부모 선택 */
+.breed-parents{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:8px}
+.breed-parents .breed-combo{flex:1;min-width:220px}
+.bp-label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.bp-chosen{margin-top:10px;min-height:30px}
+.breed-x{color:var(--muted);font-weight:900;font-size:16px;padding:0 2px}
+
+.breed-result{margin-top:8px}
+.breed-empty,.breed-empty.warn{color:var(--muted);font-size:14px;padding:18px 0}
+.breed-empty.warn{color:#ff8aa6}
+.breed-pairhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;font-size:15px}
+.breed-note,.bc-meta{color:var(--muted);font-size:12px;font-weight:600}
+.bc-meta.warn{color:#ffb38a}
+
+/* 결과 테이블 확률바 */
+.breed-table .is-own .nm{color:var(--gold)}
+.pbar{display:block;height:4px;background:var(--line);border-radius:3px;margin-top:3px;overflow:hidden}
+.pbar span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+/* 섹션 */
+.breed-sec{margin-top:22px}
+.breed-sec>h3{font-size:16px;margin-bottom:10px;border-left:3px solid var(--accent);padding-left:10px}
+.breed-sec>h3 small{color:var(--muted);font-weight:500;font-size:12px;margin-left:6px}
+
+/* 개별 조합 카드 */
+.breed-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.breed-card.no{opacity:.85}
+.bc-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.bc-list{display:flex;flex-direction:column;gap:6px}
+.bpair{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;
+  background:var(--panel2);border-radius:10px;padding:7px 12px}
+.bpair-parents{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bpair-stat{display:flex;align-items:center;gap:10px}
+.bpair-stat .prob{color:var(--gold);font-size:14px}
+.bpair-stat .ft{color:var(--muted);font-size:12px}
+
+/* 동시교배 */
+.sim-banner{border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sim-banner.ok{background:rgba(51,214,192,.12);border:1px solid var(--accent2)}
+.sim-banner.warn{background:rgba(255,179,138,.12);border:1px solid #ffb38a}
+.sim-banner b{color:var(--text)}
+.sim-ft{color:var(--muted);font-size:12px;margin-left:auto}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.sim-slot{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.sim-target{margin-bottom:8px}
+.sim-recipe{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.sim-prob{color:var(--muted);font-size:13px}
+.sim-prob b{color:var(--gold)}
+.sim-excluded{margin-top:12px;font-size:13px;color:var(--muted)}
+.sim-excluded .exc{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 9px;margin:3px 4px 0 0}
+.sim-excluded small{color:#ffb38a}
+
+/* 루트 */
+.route-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.route-card.no{opacity:.85}
+.route-steps{list-style:none;counter-reset:step;display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.route-steps li{counter-increment:step;display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+  background:var(--panel2);border-radius:10px;padding:8px 12px 8px 38px;position:relative;font-size:13px}
+.route-steps li::before{content:counter(step);position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.route-arrow{color:var(--accent2);font-weight:900}
+.route-p{color:var(--gold);font-weight:700;margin-left:auto;font-size:12px}
