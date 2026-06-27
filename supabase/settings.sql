@@ -23,7 +23,7 @@ create policy "settings admin write" on public.settings
   using (auth.jwt() ->> 'email' = 'admin@dv3.com')
   with check (auth.jwt() ->> 'email' = 'admin@dv3.com');
 
--- 초기 픽업 값(현재 픽업: 파루파루, 닌자 드래곤)
+-- 초기 픽업 값(현재 픽업: 닌자 드래곤)
 insert into public.settings (key, value)
-values ('pickup', '["파루파루","닌자 드래곤"]'::jsonb)
+values ('pickup', '["닌자 드래곤"]'::jsonb)
 on conflict (key) do nothing;

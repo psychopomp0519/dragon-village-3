@@ -8,7 +8,7 @@
 const Store = (() => {
   const LS_KEY = "dv3_owned";
   const ADMIN_EMAIL = "admin@dv3.com";
-  const DEFAULT_PICKUP = ["파루파루", "닌자 드래곤"];
+  const DEFAULT_PICKUP = ["닌자 드래곤"];
   const listeners = { change: [], auth: [] };
   let client = null;
   let user = null;
