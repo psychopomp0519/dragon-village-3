@@ -98,6 +98,7 @@
     <div class="breed-head">
       <div class="breed-modes" id="breed-modes">
         <button class="bmode active" data-bmode="target">🎯 목표로 찾기</button>
+        <button class="bmode" data-bmode="barracks">🏠 n배럭</button>
         <button class="bmode" data-bmode="parent">👪 부모로 찾기</button>
       </div>
       <div class="breed-ctx">
@@ -108,15 +109,17 @@
     </div>
     <div class="breed-pickup" id="breed-pickup"></div>
 
-    <!-- 목표로 찾기 -->
-    <div class="bmode-panel" id="bpanel-target">
-      <p class="breed-hint">만들고 싶은 드래곤을 검색해 추가하세요. 여러 마리를 고르면 <b>한 조합으로 모두 낼 수 있는지</b> 분석하고, 1~2마리는 <b>n배럭 조합기</b>로 부모가 겹치지 않게 동시에 노리는 법을 보여줍니다. 보유분으로 직접 못 만들면 <b>최적 교배 순서</b>를 제안합니다.</p>
+    <!-- 목표로 찾기 / n배럭 (목표 선택 공유) -->
+    <div class="bmode-panel" id="bpanel-select">
+      <p class="breed-hint" id="bselect-hint"></p>
       <div class="breed-combo">
         <input type="search" id="btarget-input" class="search" placeholder="목표 드래곤 검색 후 선택…" autocomplete="off">
         <div class="combo-list" id="btarget-list" hidden></div>
       </div>
       <div class="breed-chosen" id="btarget-chosen"></div>
-      <div id="btarget-result" class="breed-result"></div>
+      <div class="brk-ctrl" id="brk-ctrl" hidden><span class="brk-lbl">배럭 수</span>
+        <select id="brk-n" class="brk-sel"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div id="bselect-result" class="breed-result"></div>
     </div>
 
     <!-- 부모로 찾기 -->

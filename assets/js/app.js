@@ -442,125 +442,125 @@ function commonPairLine(p, ownSet){
     <span class="cp-targets">${tags}</span>
   </div>`;
 }
-function renderBreedTarget(){
-  const s=state.breeding, ownSet=breedOwnedSet();
-  // 칩
+/* 선택 목표 칩 (목표·배럭 모드 공유) */
+function renderTargetChips(){
+  const s=state.breeding;
   $("#btarget-chosen").innerHTML = s.targets.length
     ? s.targets.map(id=>{const d=Breed.byId(id);
         return `<span class="tchip" style="--el:${elColor(d.elementNames[0])}">${esc(d.name)} <span class="tchip-t">T${d.tier}</span><button class="bx" data-del="${id}">✕</button></span>`;}).join("")
       + `<button class="btn btn-sm tclear" id="btarget-clear">모두 비우기</button>`
     : `<span class="breed-empty">아직 선택한 목표가 없습니다.</span>`;
-  $$("#btarget-chosen .bx").forEach(b=>b.onclick=()=>{ s.targets=s.targets.filter(x=>x!==+b.dataset.del); renderBreedTarget(); });
-  const clr=$("#btarget-clear"); if(clr) clr.onclick=()=>{ s.targets=[]; renderBreedTarget(); };
+  $$("#btarget-chosen .bx").forEach(b=>b.onclick=()=>{ s.targets=s.targets.filter(x=>x!==+b.dataset.del); renderTargetChips(); renderSelectResult(); });
+  const clr=$("#btarget-clear"); if(clr) clr.onclick=()=>{ s.targets=[]; renderTargetChips(); renderSelectResult(); };
+}
+function renderSelectResult(){ if(state.breeding.mode==="barracks") renderBreedBarracks(); else renderBreedTarget(); }
 
-  const box=$("#btarget-result");
-  if(!s.targets.length){ box.innerHTML=""; return; }
+/* 교배 순서(루트) 섹션 */
+function routeSection(targetList, startIds, ownSet, level){
+  let html=`<div class="breed-sec"><h3>최적 교배 순서 <small>보유분으로 직접 못 만드는 목표</small></h3>`;
+  for(const t of targetList){
+    const d=Breed.byId(t), steps=Breed.route(t,startIds,level);
+    if(steps&&steps.length){
+      let routeTotal=0;
+      const lis=steps.map(st=>{
+        const out=Breed.breed(Breed.byId(st.a),Breed.byId(st.b),level);
+        const ft=Breed.failTime(out,st.result);
+        const e=Breed.expect(st.p,ft,st.result); if(e) routeTotal+=e.total;
+        const att=st.p>=99.99?"1회":(st.p<10?(100/st.p).toFixed(1):Math.round(100/st.p))+"회";
+        return `<li>${bPill(Breed.byId(st.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(st.b),ownSet)} <span class="route-arrow">→</span> ${bPill(Breed.byId(st.result),ownSet)} <span class="route-p">${st.p.toFixed(2)}% · 기대 ${att}</span></li>`;
+      }).join("");
+      html+=`<div class="route-card"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${steps.length}단계 · 누적 교배시간 ~${fmtTime(routeTotal)}</span></div><ol class="route-steps">${lis}</ol></div>`;
+    } else {
+      html+=`<div class="route-card no"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">현재 보유(+희귀 기본)로는 도달할 수 없습니다.</span></div></div>`;
+    }
+  }
+  return html+`</div>`;
+}
 
-  const pool=Breed.parentPool(ownSet, s.ownedOnly);
-  const startIds=[...ownSet];
+/* 부분집합 카드 (한 조합으로 함께 되는 묶음) */
+function subsetCard(sub, ownSet){
+  const names=sub.targets.map(t=>bPill(Breed.byId(t),ownSet)).join(" ");
+  const probs=sub.targets.map(t=>`<span class="cp-t">${esc(Breed.byId(t).name)} <b>${sub.probs[t].toFixed(2)}%</b></span>`).join("");
+  return `<div class="breed-card">
+    <div class="bc-head"><span class="subset-size">${sub.targets.length}마리</span> ${names}</div>
+    <div class="bpair cp"><span class="bpair-parents">${bPill(Breed.byId(sub.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(sub.b),ownSet)}</span><span class="cp-targets">${probs}</span></div>
+  </div>`;
+}
+
+/* ---- 목표로 찾기 (한 조합 기준) ---- */
+function renderBreedTarget(){
+  const s=state.breeding, ownSet=breedOwnedSet(), box=$("#bselect-result");
+  if(!s.targets.length){ box.innerHTML=`<p class="breed-empty">위에서 목표 드래곤을 검색해 추가하세요.</p>`; return; }
+  const pool=Breed.parentPool(ownSet, s.ownedOnly), startIds=[...ownSet];
   let html="";
-
-  // 1) 개별 최적 조합
-  const direct={}; // id -> combos
-  html+=`<div class="breed-sec"><h3>개별 최적 조합 <small>${s.ownedOnly?'보유 부모 기준':'전체 드래곤 기준'}</small></h3>`;
-  for(const t of s.targets){
-    const d=Breed.byId(t);
-    const combos=Breed.combosForTarget(t,pool,s.level,8);
-    direct[t]=combos;
+  if(s.targets.length===1){
+    const t=s.targets[0], d=Breed.byId(t);
+    const combos=Breed.combosForTarget(t,pool,s.level,20);
+    html+=`<div class="breed-sec"><h3>${esc(d.name)} 교배 방법 <small>${s.ownedOnly?'보유 부모 기준':'전체 드래곤 기준'} · 우선순위(확률↓·실패시간↑)</small></h3>`;
     if(combos.length){
       const top=combos[0];
-      html+=`<div class="breed-card">
-        <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">가능 조합 ${combos.length}쌍 · 최고 <b>${top.p.toFixed(2)}%</b> · ${esc(estStr(top.p,top.ft,t))}</span></div>
-        <div class="bc-list">${combos.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,t)).join("")}</div>
-      </div>`;
+      html+=`<div class="breed-card"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">가능 조합 ${combos.length}쌍 · 최고 <b>${top.p.toFixed(2)}%</b> · ${esc(estStr(top.p,top.ft,t))}</span></div>
+        <div class="bc-list">${combos.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,t)).join("")}</div></div>`;
     } else {
-      html+=`<div class="breed-card no">
-        <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">${s.ownedOnly?'보유 부모로 직접 만들 수 있는 조합이 없습니다':'직접 교배 조합이 없습니다'}</span></div>
-      </div>`;
+      html+=`<div class="breed-card no"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">${s.ownedOnly?'보유 부모로 직접 만들 수 있는 조합이 없습니다':'직접 교배 조합이 없습니다'}</span></div></div>`;
+      html+=routeSection([t],startIds,ownSet,s.level);
     }
-  }
-  html+=`</div>`;
-
-  // 2) 한 조합으로 모두 (2마리 이상) — 선택한 드래곤을 모두 낼 수 있는 단일 부모 조합
-  if(s.targets.length>=2){
+    html+=`</div>`;
+  } else {
     const cp=Breed.commonPairs(s.targets,pool,s.level);
     const full=cp.pairs.filter(p=>p.count===cp.n);
-    html+=`<div class="breed-sec"><h3>한 조합으로 모두 <small>선택한 드래곤을 모두 낼 수 있는 부모 조합</small></h3>`;
+    html+=`<div class="breed-sec"><h3>동시 교배 (한 조합) <small>부모 1쌍으로 선택한 ${cp.n}마리를 모두 · 우선순위</small></h3>`;
     if(full.length){
-      html+=`<div class="sim-banner ok">✅ 선택한 ${cp.n}마리를 <b>모두 낼 수 있는 부모 조합</b>이 ${full.length}개 있습니다. <span class="sim-ft">아래 조합으로 교배하면 모든 목표가 결과로 등장합니다(확률 동시 표기).</span></div>`;
-      html+=`<div class="bc-list">${full.slice(0,12).map(p=>commonPairLine(p,ownSet)).join("")}</div>`;
-    } else if(cp.maxCount>=1){
-      const best=cp.pairs.filter(p=>p.count===cp.maxCount);
-      html+=`<div class="sim-banner warn">⚠️ 선택한 ${cp.n}마리를 <b>한 조합으로 모두 내는 방법은 없습니다.</b> 한 조합으로 최대 <b>${cp.maxCount}마리</b>까지 가능합니다.</div>`;
-      html+=`<div class="bc-list">${best.slice(0,12).map(p=>commonPairLine(p,ownSet)).join("")}</div>`;
+      html+=`<div class="sim-banner ok">✅ 선택한 ${cp.n}마리를 <b>한 조합으로 모두</b> 낼 수 있습니다 (${full.length}개 조합).</div>`;
+      html+=`<div class="bc-list">${full.slice(0,15).map(p=>commonPairLine(p,ownSet)).join("")}</div>`;
     } else {
-      html+=`<div class="sim-banner warn">⚠️ 선택한 목표를 내는 부모 조합을 찾지 못했습니다.</div>`;
-    }
-    if(cp.impossible.length){
-      html+=`<div class="sim-excluded"><b>어떤 조합으로도 안 나오는 목표:</b> ${cp.impossible.map(t=>
-        `<span class="exc">${esc(Breed.byId(t).name)}</span>`).join(" ")} <small>아래 '교배 순서'에서 단계별 경로를 확인하세요.</small></div>`;
-    }
-    html+=`</div>`;
-  }
-
-  // 3) 보유분으로 직접 불가 → 교배 순서(루트)
-  const needRoute=s.targets.filter(t=>!(direct[t]&&direct[t].length));
-  if(needRoute.length){
-    html+=`<div class="breed-sec"><h3>최적 교배 순서 <small>보유분으로 직접 못 만드는 목표</small></h3>`;
-    for(const t of needRoute){
-      const d=Breed.byId(t);
-      const steps=Breed.route(t,startIds,s.level);
-      if(steps&&steps.length){
-        let routeTotal=0;
-        const lis=steps.map(st=>{
-          const out=Breed.breed(Breed.byId(st.a),Breed.byId(st.b),s.level);
-          const ft=Breed.failTime(out,st.result);
-          const e=Breed.expect(st.p,ft,st.result); if(e) routeTotal+=e.total;
-          const att = st.p>=99.99 ? "1회" : (st.p<10?(100/st.p).toFixed(1):Math.round(100/st.p))+"회";
-          return `<li>
-            ${bPill(Breed.byId(st.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(st.b),ownSet)}
-            <span class="route-arrow">→</span> ${bPill(Breed.byId(st.result),ownSet)}
-            <span class="route-p">${st.p.toFixed(2)}% · 기대 ${att}</span></li>`;
-        }).join("");
-        html+=`<div class="route-card">
-          <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${steps.length}단계 — 중간 드래곤을 먼저 교배하세요 · 누적 교배시간 ~${fmtTime(routeTotal)}</span></div>
-          <ol class="route-steps">${lis}</ol>
-        </div>`;
-      } else {
-        html+=`<div class="route-card no"><div class="bc-head">${bPill(d,ownSet)}
-          <span class="bc-meta warn">현재 보유(+희귀 기본)로는 도달할 수 없습니다. 필요한 부모 드래곤을 추가로 확보해야 합니다.</span></div></div>`;
-      }
+      const cs=Breed.commonSubsets(s.targets,pool,s.level);
+      html+=`<div class="sim-banner warn">⚠️ 선택한 ${cp.n}마리를 <b>한 조합으로 동시에 낼 수는 없습니다.</b> 아래는 <b>한 조합으로 함께 되는 묶음(부분집합)</b>입니다 — 큰 것부터.</div>`;
+      if(cs.maximal.length) html+=`<div class="subset-list">${cs.maximal.slice(0,12).map(sub=>subsetCard(sub,ownSet)).join("")}</div>`;
+      else html+=`<div class="bc-meta warn">함께 낼 수 있는 조합을 찾지 못했습니다.</div>`;
+      if(cs.impossible.length) html+=`<div class="sim-excluded"><b>어떤 조합으로도 안 나오는 목표:</b> ${cs.impossible.map(t=>`<span class="exc">${esc(Breed.byId(t).name)}</span>`).join(" ")}</div>`;
     }
     html+=`</div>`;
+    const noneT=s.targets.filter(t=>Breed.combosForTarget(t,pool,s.level,1).length===0);
+    if(noneT.length) html+=routeSection(noneT,startIds,ownSet,s.level);
   }
-
-  // 4) n배럭 조합기 (1~2마리 노리기)
-  if(s.targets.length>=1 && s.targets.length<=2){
-    const n=s.barracks;
-    const plan=Breed.barracks(s.targets,n,pool,s.level);
-    const opts=[2,3,4,5,6].map(v=>`<option value="${v}"${v===n?' selected':''}>${v}배럭</option>`).join("");
-    html+=`<div class="breed-sec"><h3>n배럭 조합기 <small>부모가 겹치지 않는 여러 배럭으로 ${s.targets.length===1?'한 마리':'두 마리'} 동시에 노리기</small>
-      <select id="brk-n" class="brk-sel">${opts}</select></h3>`;
-    const anyPick = plan.perTarget.some(pt=>pt.picks.length);
-    if(!anyPick){
-      html+=`<div class="sim-banner warn">⚠️ 보유 부모로 만들 수 있는 조합이 없어 배럭을 채울 수 없습니다.</div>`;
-    } else {
-      html+=plan.perTarget.map(pt=>{
-        const d=Breed.byId(pt.target);
-        if(!pt.picks.length) return `<div class="breed-card no"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">배정할 서로소 조합이 없습니다</span></div></div>`;
-        const rounds = pt.successPct>0 ? Math.round(100/pt.successPct) : 0;
-        return `<div class="breed-card">
-          <div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${pt.barracks}배럭 사용 · 한 라운드에 1마리+ 얻을 확률 <b>${pt.successPct.toFixed(2)}%</b> · 기대 ${rounds}라운드</span></div>
-          <div class="bc-list">${pt.picks.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,pt.target)).join("")}</div>
-        </div>`;
-      }).join("");
-      if(plan.used<n) html+=`<p class="bc-meta">※ 서로 겹치지 않는 부모로 ${plan.used}배럭까지만 구성됩니다(보유 부모 부족).</p>`;
-    }
-    html+=`</div>`;
-  }
-
   box.innerHTML=html;
-  const bn=$("#brk-n"); if(bn) bn.onchange=e=>{ s.barracks=+e.target.value; renderBreedTarget(); };
+}
+
+/* ---- n배럭 (별도 탭) ---- */
+function renderBreedBarracks(){
+  const s=state.breeding, ownSet=breedOwnedSet(), box=$("#bselect-result");
+  if(!s.targets.length){ box.innerHTML=`<p class="breed-empty">위에서 목표 드래곤을 추가하세요. 부모가 겹치지 않는 <b>${s.barracks}배럭</b>으로 얻는 법을 계산합니다.</p>`; return; }
+  const pool=Breed.parentPool(ownSet,s.ownedOnly), n=s.barracks;
+  let html="";
+  if(s.targets.length===1){
+    const t=s.targets[0], d=Breed.byId(t), plan=Breed.barracks(s.targets,n,pool,s.level), pt=plan.perTarget[0];
+    html+=`<div class="breed-sec"><h3>${esc(d.name)} — ${n}배럭 <small>부모 안 겹치는 ${n}개 배럭으로 노리기</small></h3>`;
+    if(!pt.picks.length){ html+=`<div class="sim-banner warn">⚠️ 보유 부모로 만들 수 있는 조합이 없습니다.</div>`; }
+    else{
+      const rounds=pt.successPct>0?Math.round(100/pt.successPct):0;
+      html+=`<div class="sim-banner ok">${pt.barracks}배럭 · 한 라운드에 <b>1마리+ ${pt.successPct.toFixed(2)}%</b> · 기대 ${rounds}라운드</div>`;
+      html+=`<div class="bc-list">${pt.picks.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,t)).join("")}</div>`;
+      if(plan.used<n) html+=`<p class="bc-meta">※ 서로소 부모로 ${plan.used}배럭까지만 구성됩니다(보유 부모 부족).</p>`;
+    }
+    html+=`</div>`;
+  } else {
+    const plan=Breed.barracksForSet(s.targets,n,pool,s.level);
+    html+=`<div class="breed-sec"><h3>${plan.n}마리 모두 얻기 — ${n}배럭 <small>부모가 겹치지 않는 배럭으로 전부 커버</small></h3>`;
+    html+= plan.allCovered
+      ? `<div class="sim-banner ok">✅ ${n}배럭으로 선택한 <b>${plan.n}마리를 모두 동시 진행</b> 가능합니다 (${plan.used}배럭 사용).</div>`
+      : `<div class="sim-banner warn">⚠️ ${n}배럭으로는 <b>전부 동시 진행 불가</b> — 최대 <b>${plan.coveredCount}/${plan.n}마리</b>까지 커버됩니다. 배럭 수를 늘리거나 보유 부모를 추가하세요.</div>`;
+    if(plan.chosen.length) html+=`<div class="sim-grid">${plan.chosen.map((c,i)=>`
+      <div class="sim-slot"><div class="sim-slot-no">배럭 ${i+1}</div>
+        <div class="sim-recipe">${bPill(Breed.byId(c.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(c.b),ownSet)}</div>
+        <div class="sim-prob">${c.cov.map(t=>`${esc(Breed.byId(t).name)} <b>${c.probs[t].toFixed(2)}%</b>`).join(" · ")}</div>
+      </div>`).join("")}</div>`;
+    html+=`<div class="bc-meta" style="margin-top:10px">타깃별 한 라운드 성공확률: ${plan.perTarget.map(pt=>`${esc(Breed.byId(pt.target).name)} <b>${pt.covered?pt.successPct.toFixed(2)+'%':'미커버'}</b>`).join(" · ")}</div>`;
+    const unc=plan.perTarget.filter(pt=>!pt.covered);
+    if(unc.length) html+=`<div class="sim-excluded"><b>커버 못한 목표:</b> ${unc.map(pt=>`<span class="exc">${esc(Breed.byId(pt.target).name)}</span>`).join(" ")}</div>`;
+    html+=`</div>`;
+  }
+  box.innerHTML=html;
 }
 
 function renderPickup(){
@@ -610,14 +610,21 @@ function renderBreeding(){
   const s=state.breeding;
   // 모드 전환
   $$("#breed-modes .bmode").forEach(b=>b.classList.toggle("active",b.dataset.bmode===s.mode));
-  $("#bpanel-target").hidden = s.mode!=="target";
+  const isSel = s.mode==="target"||s.mode==="barracks";
+  $("#bpanel-select").hidden = !isSel;
   $("#bpanel-parent").hidden = s.mode!=="parent";
+  $("#brk-ctrl").hidden = s.mode!=="barracks";
+  // 안내문
+  const hint=$("#bselect-hint");
+  if(s.mode==="target") hint.innerHTML=`목표를 추가하세요. <b>1마리</b>면 그 드래곤의 교배 방법을 우선순위(확률↓·실패시간↑)로, <b>2마리+</b>면 <b>한 조합(부모 1쌍)으로 모두</b> 내는 법을 보여주고, 불가하면 함께 되는 <b>부분집합</b>을 크기순으로 나열합니다.`;
+  else if(s.mode==="barracks") hint.innerHTML=`<b>n배럭</b>: 부모가 겹치지 않는 여러 배럭을 계속 돌려 목표를 얻는 법. <b>1마리</b>면 성공확률을 높이는 배럭 조합, <b>2마리+</b>면 <b>모두 얻도록</b> 배럭 배정(불가하면 최대한 많이 커버).`;
   // 픽업 바
   renderPickup();
   // 보유 요약
   const ownSet=breedOwnedSet();
   $("#breed-own").innerHTML=`보유 부모풀 <b>${Breed.parentPool(ownSet,true).length}</b>종 <small>(희귀 10종 기본 포함)</small>`;
-  if(s.mode==="target") renderBreedTarget(); else renderBreedParent();
+  if(s.mode==="parent") renderBreedParent();
+  else { renderTargetChips(); renderSelectResult(); }
 }
 
 async function initBreeding(){
@@ -636,10 +643,12 @@ async function initBreeding(){
   // 컨텍스트
   $("#breed-level").addEventListener("input",e=>{ s.level=Math.max(1,Math.min(99,+e.target.value||1)); renderBreeding(); });
   $("#breed-ownedonly").addEventListener("change",e=>{ s.ownedOnly=e.target.checked; renderBreeding(); });
-  // 목표 콤보
+  // 목표 콤보 (목표·배럭 공유)
   makeCombo("#btarget-input","#btarget-list",
     q=>breedMatches(q,{breedableOnly:true}).filter(d=>!s.targets.includes(d.id)),
-    id=>{ if(!s.targets.includes(id)) s.targets.push(id); $("#btarget-input").value=""; renderBreedTarget(); });
+    id=>{ if(!s.targets.includes(id)) s.targets.push(id); $("#btarget-input").value=""; renderTargetChips(); renderSelectResult(); });
+  // 배럭 수
+  $("#brk-n").addEventListener("change",e=>{ s.barracks=+e.target.value; if(state.breeding.mode==="barracks") renderBreedBarracks(); });
   // 부모 콤보 ×2
   makeCombo("#bp1-input","#bp1-list", q=>breedMatches(q,{parentOnly:true}), id=>{ s.p1=id; $("#bp1-input").value=""; renderBreedParent(); });
   makeCombo("#bp2-input","#bp2-list", q=>breedMatches(q,{parentOnly:true}), id=>{ s.p2=id; $("#bp2-input").value=""; renderBreedParent(); });

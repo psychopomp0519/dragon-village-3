@@ -406,3 +406,10 @@ select:focus{outline:none;border-color:var(--accent)}
 .stat-radar .rg-dot{fill:var(--accent)}
 .stat-radar .rg-lbl{fill:var(--muted);font-size:11px;font-weight:700}
 .stat-radar .rg-val{fill:var(--text);font-size:12px;font-weight:900}
+
+/* 배럭 컨트롤 / 부분집합 / 배럭 슬롯 */
+.brk-ctrl{display:flex;align-items:center;gap:8px;margin:4px 0 12px;font-size:13px;color:var(--muted)}
+.brk-lbl{font-weight:700}
+.subset-list{display:flex;flex-direction:column;gap:8px}
+.subset-size{background:var(--accent);color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px;flex:0 0 auto}
+.sim-slot-no{font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px}
