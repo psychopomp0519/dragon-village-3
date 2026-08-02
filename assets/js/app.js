@@ -1,0 +1,1055 @@
+"use strict";
+
+/* ===== 속성 색상 ===== */
+const ELEMENT_COLORS = {
+  "불":"#ff6b4a","물":"#4aa8ff","바람":"#52d39a","강철":"#9aa6bd","땅":"#c79a5b",
+  "번개":"#ffd24a","빛":"#ffe27a","어둠":"#a06bff","꿈":"#ff8ad1","영혼":"#5fe0e0",
+  "여명":"#ffb38a","황혼":"#c77dff","신성":"#fff2b0","혼돈":"#ff5c8a"
+};
+const ELEMENT_ORDER = ["불","물","바람","강철","땅","번개","빛","어둠","꿈","영혼","여명","황혼","신성","혼돈"];
+const STAT_LABELS = {hp:"체력",atk:"공격",def:"방어",mag:"마력",res:"저항",spd:"속도"};
+const elColor = e => ELEMENT_COLORS[e] || "#7c6cff";
+
+/* ===== 상태 ===== */
+const DB = {};
+const state = {
+  dragons:{search:"",grades:[],attack:"",sources:[],sort:"total",element:"",owned:""},
+  orbs:{search:"",grade:"",type:"",sort:"power",element:""},
+  abilities:{search:""},
+  breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null,pickup:[],pickupEdit:false,barracks:3},
+  types:{focus:""},
+  request:{type:"dragon",msg:null}
+};
+
+/* ===== 유틸 ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const elBadge = e => `<span class="badge badge-el" style="background:${elColor(e)}">${esc(e)}</span>`;
+const gradeBadge = g => `<span class="badge badge-grade grade-${esc(g)}">${esc(g)}</span>`;
+
+async function loadAll(){
+  const names = ["dragons","orbs","abilities","dragon_summary","orb_summary","terms","dragon_notes","orb_notes","breeding_dragons","type_chart"];
+  const res = await Promise.all(names.map(n=>fetch(`data/${n}.json`).then(r=>{
+    if(!r.ok) throw new Error(`${n}.json (${r.status})`); return r.json();
+  })));
+  names.forEach((n,i)=>DB[n]=res[i]);
+}
+
+/* ===== 탭 ===== */
+function initTabs(){
+  $$("#tabs .tab").forEach(t=>t.addEventListener("click",()=>{
+    $$("#tabs .tab").forEach(x=>x.classList.remove("active"));
+    $$(".view").forEach(v=>v.classList.remove("active"));
+    t.classList.add("active");
+    $("#view-"+t.dataset.view).classList.add("active");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }));
+}
+
+/* ===== 셀렉트 채우기 ===== */
+function fillSelect(sel,values){
+  values.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});
+}
+
+/* ===== 속성칩 ===== */
+function buildElementChips(containerId,elements,getActive,onpick){
+  const c=$(containerId);
+  const render=()=>{
+    const active=getActive();
+    const mk=(val,label)=>{
+      const b=document.createElement("button");
+      b.className="chip"+(active===val?" active":"");
+      if(val&&active===val) b.style.cssText=`background:${elColor(val)}`;
+      b.innerHTML = val?`<span class="dot" style="background:${elColor(val)}"></span>${label}`:label;
+      b.onclick=()=>{onpick(active===val?"":val);render();};
+      return b;
+    };
+    c.innerHTML="";
+    c.appendChild(mk("","전체"));
+    elements.forEach(e=>c.appendChild(mk(e,e)));
+  };
+  render();
+}
+
+/* ===== 다중 선택 칩 (등급·획득처) ===== */
+function buildMultiChips(containerId,values,getActive,onToggle){
+  const c=$(containerId);
+  const render=()=>{
+    const active=getActive();
+    c.innerHTML="";
+    const mk=(val,label,isAll)=>{
+      const on = isAll ? active.length===0 : active.includes(val);
+      const b=document.createElement("button");
+      b.className="chip"+(on?" active":"");
+      b.textContent=label;
+      b.onclick=()=>{ onToggle(isAll?null:val); render(); };
+      return b;
+    };
+    c.appendChild(mk(null,"전체",true));
+    values.forEach(v=>c.appendChild(mk(v,v,false)));
+  };
+  render();
+}
+
+/* ====================== DRAGONS ====================== */
+function renderDragons(){
+  const s=state.dragons;
+  let list=DB.dragons.filter(d=>{
+    if(s.grades.length && !s.grades.includes(d.grade)) return false;
+    if(s.attack && d.attackType!==s.attack) return false;
+    if(s.sources.length && !s.sources.includes(d.source)) return false;
+    if(s.element && d.element!==s.element) return false;   // 주 속성만
+    if(s.owned==="own" && !Store.has(d.name)) return false;
+    if(s.owned==="miss" && Store.has(d.name)) return false;
+    if(s.search){
+      const q=s.search.toLowerCase();
+      const hay=[d.name,d.element,...d.subElements,d.ability,d.abilityEffect,d.ultimate,d.basicAttack,d.ultimateEffect,d.source].join(" ").toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  list.sort((a,b)=>{
+    if(s.sort==="name") return a.name.localeCompare(b.name,"ko");
+    if(s.sort==="total") return b.total-a.total;
+    return (b.stats[s.sort]||0)-(a.stats[s.sort]||0);
+  });
+  $("#dragon-count").textContent=`${list.length}종 표시`;
+  const maxStat=1500;
+  $("#dragon-grid").innerHTML=list.map(d=>{
+    const subs=d.subElements.map(e=>`<span class="badge badge-el" style="background:${elColor(e)};opacity:.65">${esc(e)}</span>`).join("");
+    const bars=Object.keys(STAT_LABELS).map(k=>{
+      const v=d.stats[k]||0,pct=Math.min(100,v/maxStat*100);
+      return `<div class="statbar"><span class="lbl">${STAT_LABELS[k]}</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span class="val">${v}</span></div>`;
+    }).join("");
+    const own=Store.has(d.name);
+    return `<div class="dcard${own?' is-owned':''}" style="--el:${elColor(d.element)}" data-name="${esc(d.name)}">
+      <button class="own-toggle${own?' owned':''}" data-own="${esc(d.name)}" title="${own?'보유 해제':'보유로 표시'}" aria-pressed="${own}">${own?'★':'☆'}</button>
+      <div class="dcard-top">
+        <div>
+          <div class="dcard-name">${esc(d.name)}</div>
+          <div class="dcard-tags">${elBadge(d.element)}${subs}${gradeBadge(d.grade)}<span class="badge badge-atk">${esc(d.attackType)}</span></div>
+        </div>
+        <div class="dcard-total"><b>${d.total}</b><span>Lv.50 합계</span></div>
+      </div>
+      <div class="statbars">${bars}</div>
+      <div class="dcard-foot">특성 <b>${esc(d.ability)}</b> · 필살기 <b>${esc(d.ultimate)}</b></div>
+    </div>`;
+  }).join("") || `<p class="result-count">조건에 맞는 드래곤이 없습니다.</p>`;
+
+  $$("#dragon-grid .dcard").forEach(c=>c.onclick=()=>openDragon(c.dataset.name));
+  $$("#dragon-grid .own-toggle").forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    Store.toggle(b.dataset.own);
+  });
+}
+
+// 능력치 육각형(레이더) 차트
+function statRadar(d){
+  const keys=Object.keys(STAT_LABELS), MAX=1500;
+  const cx=130,cy=128,R=84;
+  const ang=i=>(-90+i*60)*Math.PI/180;
+  const pt=(i,r)=>[cx+r*Math.cos(ang(i)),cy+r*Math.sin(ang(i))];
+  const poly=r=>keys.map((_,i)=>pt(i,r).map(n=>n.toFixed(1)).join(",")).join(" ");
+  let grid="";
+  [0.25,0.5,0.75,1].forEach(f=>{grid+=`<polygon points="${poly(R*f)}" class="rg-ring"/>`;});
+  let axes="";
+  keys.forEach((_,i)=>{const[x,y]=pt(i,R);axes+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" class="rg-axis"/>`;});
+  const vpts=keys.map((k,i)=>{const v=d.stats[k]||0;return pt(i,R*Math.min(1,v/MAX)).map(n=>n.toFixed(1)).join(",");}).join(" ");
+  let dots="",labels="";
+  keys.forEach((k,i)=>{
+    const v=d.stats[k]||0;
+    const[vx,vy]=pt(i,R*Math.min(1,v/MAX)); dots+=`<circle cx="${vx.toFixed(1)}" cy="${vy.toFixed(1)}" r="2.6" class="rg-dot"/>`;
+    const[lx,ly]=pt(i,R+19);
+    const anchor=Math.abs(lx-cx)<6?"middle":(lx<cx?"end":"start");
+    labels+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" class="rg-lbl">${STAT_LABELS[k]}</text>`;
+    labels+=`<text x="${lx.toFixed(1)}" y="${(ly+13).toFixed(1)}" text-anchor="${anchor}" class="rg-val">${v}</text>`;
+  });
+  return `<svg viewBox="0 0 260 256" class="stat-radar" role="img" aria-label="능력치 육각형 차트">
+    ${grid}${axes}<polygon points="${vpts}" class="rg-area"/>${dots}${labels}</svg>`;
+}
+
+function openDragon(name){
+  const d=DB.dragons.find(x=>x.name===name); if(!d) return;
+  const subs=d.subElements.map(e=>`<span class="badge badge-el" style="background:${elColor(e)};opacity:.7">${esc(e)}</span>`).join("");
+  $("#modal-body").innerHTML=`
+    <div class="m-head"><div class="m-name">${esc(d.name)}</div></div>
+    <div class="m-tags">${elBadge(d.element)}${subs}${gradeBadge(d.grade)}<span class="badge badge-atk">${esc(d.attackType)} 공격형</span></div>
+    <button class="btn m-own-btn${Store.has(d.name)?' owned':''}" id="m-own" data-name="${esc(d.name)}">${Store.has(d.name)?'★ 보유 중 — 해제':'☆ 보유로 표시'}</button>
+    <div class="m-total"><b>${d.total}</b><span>Lv.50 · 5성 기준 능력치 합계</span></div>
+    <div class="m-section"><h4>능력치</h4><div class="m-radar-wrap">${statRadar(d)}</div></div>
+    <div class="m-section"><h4>특성 (어빌리티)</h4>
+      <div class="m-row"><div class="t">${esc(d.ability)}</div><div class="d">${esc(d.abilityEffect)}</div></div></div>
+    <div class="m-section"><h4>스킬</h4>
+      <div class="m-stats">
+        <div class="m-row"><div class="t">평타 · ${esc(d.basicAttack)}</div><div class="d"><small>명중 100 / 위력 30 · 에너지 1 회복</small></div></div>
+        <div class="m-row"><div class="t">필살기 · ${esc(d.ultimate)} <small style="color:var(--muted)">(${esc(d.ultimateType)})</small></div>
+          <div class="d">${esc(d.ultimateEffect)}<br><small>명중 ${esc(d.accuracy)} / 위력 ${esc(d.power)}</small></div></div>
+      </div></div>
+    ${typeSectionFor(d)}
+    <div class="m-section"><h4>획득처</h4><div class="m-row"><div class="d">${esc(d.source)}</div></div></div>`;
+  $("#m-own").onclick=()=>{ Store.toggle(d.name); openDragon(d.name); };
+  openModal();
+}
+
+/* ====================== ORBS ====================== */
+function renderOrbs(){
+  const s=state.orbs;
+  let list=DB.orbs.filter(o=>{
+    if(s.grade && o.grade!==s.grade) return false;
+    if(s.type && o.type!==s.type) return false;
+    if(s.element && o.element!==s.element) return false;
+    if(s.search){
+      const q=s.search.toLowerCase();
+      if(![o.name,o.skill,o.effect,o.element].join(" ").toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+  const num=v=>(typeof v==="number"?v:-1);
+  list.sort((a,b)=>{
+    if(s.sort==="name") return a.name.localeCompare(b.name,"ko");
+    return num(b[s.sort])-num(a[s.sort]);
+  });
+  $("#orb-count").textContent=`${list.length}종 표시`;
+  $("#orb-table tbody").innerHTML=list.map(o=>`
+    <tr>
+      <td>${elBadge(o.element)}</td>
+      <td>${gradeBadge(o.grade)}</td>
+      <td class="nm">${esc(o.name)}</td>
+      <td>${esc(o.skill)}</td>
+      <td>${esc(o.type)}</td>
+      <td class="num">${esc(o.accuracy)}</td>
+      <td class="num">${esc(o.power)}</td>
+      <td class="num">${esc(o.cost)}</td>
+      <td class="num">${esc(o.statBonus)}</td>
+      <td class="eff">${esc(o.effect)}</td>
+      <td>${esc(o.source)}</td>
+    </tr>`).join("") || `<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:30px">조건에 맞는 보주가 없습니다.</td></tr>`;
+}
+
+/* ====================== ABILITIES ====================== */
+function renderAbilities(){
+  const q=state.abilities.search.toLowerCase();
+  let list=DB.abilities.filter(a=>!q || [a.name,a.effect,...a.dragons].join(" ").toLowerCase().includes(q));
+  $("#ability-count").textContent=`${list.length}종 특성`;
+  $("#ability-grid").innerHTML=list.map(a=>`
+    <div class="acard">
+      <h3>${esc(a.name)}<span class="cnt">${a.count}</span></h3>
+      <div class="eff">${esc(a.effect)}</div>
+      <div class="owners">${a.dragons.map(d=>`<span class="owner" data-name="${esc(d)}">${esc(d)}</span>`).join("")}</div>
+    </div>`).join("") || `<p class="result-count">결과 없음</p>`;
+  $$("#ability-grid .owner").forEach(o=>o.onclick=()=>{
+    if(DB.dragons.some(d=>d.name===o.dataset.name)) openDragon(o.dataset.name);
+  });
+}
+
+/* ===== 데이터 파생(자동 갱신): 특성·요약표 ===== */
+function rebuildAbilities(){
+  const prev={}; (DB.abilities||[]).forEach(a=>prev[a.name]=a.effect);
+  const g={};
+  DB.dragons.forEach(d=>{
+    const nm=d.ability; if(!nm) return;
+    (g[nm]=g[nm]||{effect:null,dragons:[]});
+    g[nm].dragons.push(d.name);
+    if(g[nm].effect==null) g[nm].effect = prev[nm] || d.abilityEffect || "";
+  });
+  DB.abilities=Object.keys(g).map(nm=>{
+    const ds=[...new Set(g[nm].dragons)].sort((a,b)=>a.localeCompare(b,"ko"));
+    return {name:nm,effect:g[nm].effect,count:ds.length,dragons:ds};
+  }).sort((a,b)=>(b.count-a.count)||a.name.localeCompare(b.name,"ko"));
+  const el=$("#cnt-abilities"); if(el) el.textContent=DB.abilities.length;
+}
+function computeDragonSummary(){
+  const els=ELEMENT_ORDER.filter(e=>DB.dragons.some(d=>d.element===e));
+  const rows=els.map(e=>{
+    const L=DB.dragons.filter(d=>d.element===e);
+    return {"주속성":e,"드래곤 수":L.length,
+      "전설":L.filter(d=>d.grade==="전설").length,"영웅":L.filter(d=>d.grade==="영웅").length,"희귀":L.filter(d=>d.grade==="희귀").length,
+      "물리":L.filter(d=>d.attackType==="물리").length,"마법":L.filter(d=>d.attackType==="마법").length};
+  });
+  const all=DB.dragons;
+  rows.push({"주속성":"합계","드래곤 수":all.length,
+    "전설":all.filter(d=>d.grade==="전설").length,"영웅":all.filter(d=>d.grade==="영웅").length,"희귀":all.filter(d=>d.grade==="희귀").length,
+    "물리":all.filter(d=>d.attackType==="물리").length,"마법":all.filter(d=>d.attackType==="마법").length});
+  return rows;
+}
+function computeOrbSummary(){
+  const special=["여명","황혼","신성","혼돈"];
+  const els=ELEMENT_ORDER.filter(e=>DB.orbs.some(o=>o.element===e));
+  return els.map(e=>{
+    const L=DB.orbs.filter(o=>o.element===e);
+    return {"속성":e,"보주 수":L.length,
+      "전설":L.filter(o=>o.grade==="전설").length,"영웅":L.filter(o=>o.grade==="영웅").length,"희귀":L.filter(o=>o.grade==="희귀").length,
+      "마법 공격기 보유":L.some(o=>o.type==="마법")?"O":"X",
+      "비고":special.includes(e)?"특수 속성(희귀 등급 없음)":null};
+  });
+}
+
+/* ====================== CODEX ====================== */
+function renderCodex(){
+  const tbl=(el,rows)=>{
+    if(!rows.length) return;
+    const keys=Object.keys(rows[0]);
+    $(el).innerHTML=`<thead><tr>${keys.map(k=>`<th>${esc(k)}</th>`).join("")}</tr></thead>
+      <tbody>${rows.map(r=>{
+        const total = String(r[keys[0]]).includes("합계");
+        return `<tr${total?' style="font-weight:700;background:var(--panel2)"':''}>${keys.map((k,i)=>{
+          const v=r[k];
+          if(i===0 && ELEMENT_ORDER.includes(String(v))) return `<td>${elBadge(v)}</td>`;
+          return `<td${i>0?' class="num"':''}>${esc(v)}</td>`;
+        }).join("")}</tr>`;
+      }).join("")}</tbody>`;
+  };
+  tbl("#dsummary",computeDragonSummary());
+  tbl("#osummary",computeOrbSummary());
+  $("#term-grid").innerHTML=DB.terms.map(t=>`<div class="term"><b>${esc(t["용어"])}</b><span>${esc(t["효과"])}</span></div>`).join("");
+  const notes=[...DB.dragon_notes,...DB.orb_notes].filter(n=>!String(n).startsWith("시트 구성"));
+  $("#notes-list").innerHTML=[...new Set(notes)].map(n=>`<li>${esc(n)}</li>`).join("");
+}
+
+/* ====================== COLLECTION ====================== */
+function renderCollection(){
+  const all=DB.dragons, owned=all.filter(d=>Store.has(d.name));
+  const n=owned.length, total=all.length, pct=total?Math.round(n/total*100):0;
+  $("#cnt-owned").textContent=n;
+
+  const cloud=Store.isCloud(), configured=Store.isConfigured();
+  let loginNote="";
+  if(cloud){
+    loginNote=`<span class="sub">☁️ ${esc(Store.getUser().email)} 계정에 클라우드 저장 중 · 어느 기기에서나 동기화됩니다.</span>`;
+  } else if(configured){
+    loginNote=`<span class="sub">현재 이 브라우저에만 저장됩니다. <a href="#" id="coll-login">로그인</a>하면 클라우드에 저장돼 기기 간 동기화됩니다.</span>`;
+  } else {
+    loginNote=`<span class="sub">이 브라우저(localStorage)에 저장됩니다. Supabase 설정 시 로그인·동기화가 켜집니다.</span>`;
+  }
+
+  // 등급별 / 속성별 분해
+  const grades=[...new Set(all.map(d=>d.grade))];
+  const gradeRows=grades.map(g=>{
+    const t=all.filter(d=>d.grade===g).length, o=owned.filter(d=>d.grade===g).length;
+    return brkRow(g,o,t,gradeColorVar(g));
+  }).join("");
+  const elRows=ELEMENT_ORDER.filter(e=>all.some(d=>d.element===e)).map(e=>{
+    const t=all.filter(d=>d.element===e).length, o=owned.filter(d=>d.element===e).length;
+    return brkRow(`<span class="badge badge-el" style="background:${elColor(e)}">${e}</span>`,o,t,elColor(e));
+  }).join("");
+
+  $("#collection-body").innerHTML=`
+    <div class="coll-hero">
+      <h2>내 드래곤 컬렉션</h2>
+      ${loginNote}
+      <div class="coll-big"><b>${n}</b><span>/ ${total}종 보유 · 도감 달성 ${pct}%</span></div>
+      <div class="coll-prog"><span class="fill" style="width:${pct}%"></span></div>
+    </div>
+    <div class="coll-cards">
+      <div class="coll-stat"><div class="k">보유</div><div class="v" style="color:var(--gold)">${n}</div></div>
+      <div class="coll-stat"><div class="k">미보유</div><div class="v">${total-n}</div></div>
+      <div class="coll-stat"><div class="k">달성률</div><div class="v">${pct}%</div></div>
+    </div>
+    <div class="coll-break">
+      <h3>등급별 보유</h3>${gradeRows}
+      <h3>속성별 보유</h3>${elRows}
+    </div>
+    ${n?`<div style="margin-top:22px"><button class="btn btn-sm" id="coll-goto">드래곤 도감에서 '보유만' 보기</button>
+        <button class="btn btn-sm" id="coll-clear" style="margin-left:8px">전체 보유 초기화</button></div>`:
+      `<div class="coll-empty">아직 보유로 표시한 드래곤이 없습니다.<br>드래곤 카드의 ☆ 버튼을 눌러 보유 현황을 기록해 보세요.
+        <br><button class="btn" id="coll-goto2">드래곤 도감으로</button></div>`}
+  `;
+  const goDragons=()=>{$$("#tabs .tab").forEach(x=>x.classList.remove("active"));$$(".view").forEach(v=>v.classList.remove("active"));
+    document.querySelector('#tabs .tab[data-view="dragons"]').classList.add("active");$("#view-dragons").classList.add("active");window.scrollTo({top:0});};
+  const gt=$("#coll-goto"); if(gt) gt.onclick=()=>{state.dragons.owned="own";$("#dragon-owned").value="own";renderDragons();goDragons();};
+  const gt2=$("#coll-goto2"); if(gt2) gt2.onclick=goDragons;
+  const cl=$("#coll-clear"); if(cl) cl.onclick=()=>{ if(confirm("모든 보유 표시를 해제할까요?")) Store.clearAll(); };
+  const lg=$("#coll-login"); if(lg) lg.onclick=e=>{e.preventDefault();openAuth();};
+}
+function brkRow(label,o,t,color){
+  const pct=t?o/t*100:0;
+  return `<div class="brk-row"><span class="nm">${label}</span>
+    <span class="track"><span class="fill" style="width:${pct}%;background:${color}"></span></span>
+    <span class="num">${o} / ${t}</span></div>`;
+}
+function gradeColorVar(g){return ({"전설":"var(--legend)","영웅":"var(--hero)","희귀":"var(--rare)"})[g]||"var(--accent)";}
+
+/* ====================== BREEDING ====================== */
+const fmtTime = s => {
+  s = Math.round(s||0);
+  if (s < 60) return `${s}초`;
+  if (s < 3600) return `${Math.round(s/60)}분`;
+  const h = Math.floor(s/3600), m = Math.round((s%3600)/60);
+  return m ? `${h}시간 ${m}분` : `${h}시간`;
+};
+const bEls = d => (d.elementNames||[]).map(e=>elBadge(e)).join("");
+const bRarity = r => ({3:"희귀",4:"영웅",5:"전설"})[r]||"";
+// 교배용 보유 id 집합 (희귀 10종 항상 포함)
+const breedOwnedSet = () => Breed.ownedIdSet(Store.list());
+// 드래곤 한 마리를 작은 칩으로 (클릭 시 도감 상세)
+function bPill(d, ownSet){
+  const own = ownSet.has(d.id), inDex = DB.dragons.some(x=>x.name===d.name), pick = Breed.isPickup(d.id);
+  return `<span class="bpill${own?' owned':''}${inDex?' link':''}${pick?' pickup':''}"${inDex?` data-dragon="${esc(d.name)}"`:''} title="${esc(d.name)}${pick?' · 픽업(확률업)':''}${inDex?' · 클릭하면 도감 상세':''}">
+    <span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>${esc(d.name)}
+    <span class="bpill-t">T${d.tier}</span>${pick?'<span class="bpill-pk">픽업</span>':''}${own?'<span class="bpill-own">★</span>':''}</span>`;
+}
+// 기대 횟수·누적 시간 요약
+function estStr(p, ft, targetId){
+  const e = Breed.expect(p, ft, targetId);
+  if(!e) return "";
+  const a = e.attempts < 10 ? e.attempts.toFixed(1) : Math.round(e.attempts);
+  return `기대 ${a}회 · ${fmtTime(e.total)}`;
+}
+
+/* 콤보박스(검색→선택) 헬퍼 */
+function makeCombo(inputSel, listSel, getMatches, onPick){
+  const inp=$(inputSel), list=$(listSel);
+  const draw=()=>{
+    const q=inp.value.trim().toLowerCase();
+    const items=getMatches(q).slice(0,40);
+    list.innerHTML = items.length
+      ? items.map(d=>`<button type="button" class="combo-item" data-id="${d.id}">
+          <span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>
+          <b>${esc(d.name)}</b> <span class="ci-meta">${esc(bRarity(d.rarity))} · T${d.tier} · ${esc(d.elementNames.join("·"))}</span>
+        </button>`).join("")
+      : `<div class="combo-empty">결과 없음</div>`;
+    list.hidden=false;
+  };
+  inp.addEventListener("input",draw);
+  inp.addEventListener("focus",draw);
+  list.addEventListener("click",e=>{
+    const b=e.target.closest(".combo-item"); if(!b) return;
+    onPick(+b.dataset.id); list.hidden=true;
+  });
+  document.addEventListener("click",e=>{
+    if(!e.target.closest(inputSel) && !e.target.closest(listSel)) list.hidden=true;
+  });
+}
+
+function breedMatches(q, opts={}){
+  let list = Breed.all();
+  if(opts.parentOnly) list=list.filter(d=>d.canBreedAsParent);
+  if(opts.breedableOnly) list=list.filter(d=>d.drop==="breed_normal");
+  if(q) list=list.filter(d=>d.name.toLowerCase().includes(q)||d.elementNames.join(" ").toLowerCase().includes(q)||(d.code||"").includes(q));
+  return list.sort((a,b)=>a.name.localeCompare(b.name,"ko"));
+}
+
+/* ---- 부모로 찾기 ---- */
+function renderBreedParent(){
+  const s=state.breeding, ownSet=breedOwnedSet(), box=$("#bparent-result");
+  const set=(slot,id)=>{ const c=$("#bp"+slot+"-chosen"); const d=id?Breed.byId(id):null;
+    c.innerHTML = d ? `${bPill(d,ownSet)} <button class="bx" data-clear="${slot}">✕</button>` : ""; };
+  set(1,s.p1); set(2,s.p2);
+  $$("#bpanel-parent .bx").forEach(b=>b.onclick=()=>{ s["p"+b.dataset.clear]=null;
+    $("#bp"+b.dataset.clear+"-input").value=""; renderBreedParent(); });
+
+  if(!s.p1||!s.p2){ box.innerHTML=`<p class="breed-empty">부모 두 마리를 모두 선택하세요.</p>`; return; }
+  if(s.p1===s.p2){ box.innerHTML=`<p class="breed-empty warn">같은 품종끼리는 교배할 수 없습니다. 서로 다른 드래곤을 고르세요.</p>`; return; }
+  const a=Breed.byId(s.p1), b=Breed.byId(s.p2);
+  const out=Breed.breed(a,b,s.level);
+  const rows=Object.keys(out).map(id=>({d:Breed.byId(+id),p:out[id]})).sort((x,y)=>y.p-x.p);
+  box.innerHTML=`
+    <div class="breed-pairhead">${bPill(a,ownSet)} <span class="breed-x">×</span> ${bPill(b,ownSet)}
+      <span class="breed-note">결과 ${rows.length}종 · 확률 합 100%</span></div>
+    <div class="table-wrap"><table class="data-table breed-table">
+      <thead><tr><th>결과 드래곤</th><th>속성</th><th>등급</th><th>티어</th><th>확률</th>
+        <th title="이 결과를 한 번 얻기까지 평균 교배 횟수">기대 횟수</th><th>교배시간</th><th>부화시간</th><th>보유</th></tr></thead>
+      <tbody>${rows.map(({d,p})=>{
+        const att = p<10 ? (100/p).toFixed(1) : Math.round(100/p);
+        return `<tr${ownSet.has(d.id)?' class="is-own"':''}>
+        <td class="nm link" data-dragon="${esc(d.name)}">${esc(d.name)}</td>
+        <td>${bEls(d)}</td>
+        <td>${esc(bRarity(d.rarity))}</td>
+        <td class="num">${d.tier}</td>
+        <td class="num"><b>${p.toFixed(2)}%</b><span class="pbar"><span style="width:${Math.min(100,p)}%"></span></span></td>
+        <td class="num">${att}회</td>
+        <td class="num">${fmtTime(d.breedingSeconds)}</td>
+        <td class="num">${fmtTime(d.hatchingSeconds)}</td>
+        <td>${ownSet.has(d.id)?'★':'—'}</td>
+      </tr>`;}).join("")}</tbody>
+    </table></div>`;
+}
+
+/* ---- 목표로 찾기 ---- */
+function bPairLine(a,b,p,ft,ownSet,targetId){
+  return `<div class="bpair">
+    <span class="bpair-parents">${bPill(Breed.byId(a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(b),ownSet)}</span>
+    <span class="bpair-stat"><b class="prob">${p.toFixed(2)}%</b>
+      <span class="ft">${esc(estStr(p,ft,targetId))}</span></span>
+  </div>`;
+}
+// 한 조합으로 여러 목표를 낼 때: 부모쌍 + 목표별 확률
+function commonPairLine(p, ownSet){
+  const tags=Object.keys(p.probs).map(id=>{
+    const d=Breed.byId(+id);
+    return `<span class="cp-t">${esc(d.name)} <b>${p.probs[id].toFixed(2)}%</b></span>`;
+  }).join("");
+  return `<div class="bpair cp">
+    <span class="bpair-parents">${bPill(Breed.byId(p.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(p.b),ownSet)}</span>
+    <span class="cp-targets">${tags}</span>
+  </div>`;
+}
+/* 선택 목표 칩 (목표·배럭 모드 공유) */
+function renderTargetChips(){
+  const s=state.breeding;
+  $("#btarget-chosen").innerHTML = s.targets.length
+    ? s.targets.map(id=>{const d=Breed.byId(id);
+        return `<span class="tchip" style="--el:${elColor(d.elementNames[0])}">${esc(d.name)} <span class="tchip-t">T${d.tier}</span><button class="bx" data-del="${id}">✕</button></span>`;}).join("")
+      + `<button class="btn btn-sm tclear" id="btarget-clear">모두 비우기</button>`
+    : `<span class="breed-empty">아직 선택한 목표가 없습니다.</span>`;
+  $$("#btarget-chosen .bx").forEach(b=>b.onclick=()=>{ s.targets=s.targets.filter(x=>x!==+b.dataset.del); renderTargetChips(); renderSelectResult(); });
+  const clr=$("#btarget-clear"); if(clr) clr.onclick=()=>{ s.targets=[]; renderTargetChips(); renderSelectResult(); };
+}
+function renderSelectResult(){ if(state.breeding.mode==="barracks") renderBreedBarracks(); else renderBreedTarget(); }
+
+/* 교배 순서(루트) 섹션 */
+function routeSection(targetList, startIds, ownSet, level){
+  let html=`<div class="breed-sec"><h3>최적 교배 순서 <small>보유분으로 직접 못 만드는 목표</small></h3>`;
+  for(const t of targetList){
+    const d=Breed.byId(t), steps=Breed.route(t,startIds,level);
+    if(steps&&steps.length){
+      let routeTotal=0;
+      const lis=steps.map(st=>{
+        const out=Breed.breed(Breed.byId(st.a),Breed.byId(st.b),level);
+        const ft=Breed.failTime(out,st.result);
+        const e=Breed.expect(st.p,ft,st.result); if(e) routeTotal+=e.total;
+        const att=st.p>=99.99?"1회":(st.p<10?(100/st.p).toFixed(1):Math.round(100/st.p))+"회";
+        return `<li>${bPill(Breed.byId(st.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(st.b),ownSet)} <span class="route-arrow">→</span> ${bPill(Breed.byId(st.result),ownSet)} <span class="route-p">${st.p.toFixed(2)}% · 기대 ${att}</span></li>`;
+      }).join("");
+      html+=`<div class="route-card"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">${steps.length}단계 · 누적 교배시간 ~${fmtTime(routeTotal)}</span></div><ol class="route-steps">${lis}</ol></div>`;
+    } else {
+      html+=`<div class="route-card no"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">현재 보유(+희귀 기본)로는 도달할 수 없습니다.</span></div></div>`;
+    }
+  }
+  return html+`</div>`;
+}
+
+/* 부분집합 카드 (한 조합으로 함께 되는 묶음) */
+function subsetCard(sub, ownSet){
+  const names=sub.targets.map(t=>bPill(Breed.byId(t),ownSet)).join(" ");
+  const probs=sub.targets.map(t=>`<span class="cp-t">${esc(Breed.byId(t).name)} <b>${sub.probs[t].toFixed(2)}%</b></span>`).join("");
+  return `<div class="breed-card">
+    <div class="bc-head"><span class="subset-size">${sub.targets.length}마리</span> ${names}</div>
+    <div class="bpair cp"><span class="bpair-parents">${bPill(Breed.byId(sub.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(sub.b),ownSet)}</span><span class="cp-targets">${probs}</span></div>
+  </div>`;
+}
+
+/* ---- 목표로 찾기 (한 조합 기준) ---- */
+function renderBreedTarget(){
+  const s=state.breeding, ownSet=breedOwnedSet(), box=$("#bselect-result");
+  if(!s.targets.length){ box.innerHTML=`<p class="breed-empty">위에서 목표 드래곤을 검색해 추가하세요.</p>`; return; }
+  const pool=Breed.parentPool(ownSet, s.ownedOnly), startIds=[...ownSet];
+  let html="";
+  if(s.targets.length===1){
+    const t=s.targets[0], d=Breed.byId(t);
+    const combos=Breed.combosForTarget(t,pool,s.level,20);
+    html+=`<div class="breed-sec"><h3>${esc(d.name)} 교배 방법 <small>${s.ownedOnly?'보유 부모 기준':'전체 드래곤 기준'} · 우선순위(확률↓·실패시간↑)</small></h3>`;
+    if(combos.length){
+      const top=combos[0];
+      html+=`<div class="breed-card"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta">가능 조합 ${combos.length}쌍 · 최고 <b>${top.p.toFixed(2)}%</b> · ${esc(estStr(top.p,top.ft,t))}</span></div>
+        <div class="bc-list">${combos.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,t)).join("")}</div></div>`;
+    } else {
+      html+=`<div class="breed-card no"><div class="bc-head">${bPill(d,ownSet)} <span class="bc-meta warn">${s.ownedOnly?'보유 부모로 직접 만들 수 있는 조합이 없습니다':'직접 교배 조합이 없습니다'}</span></div></div>`;
+      html+=routeSection([t],startIds,ownSet,s.level);
+    }
+    html+=`</div>`;
+  } else {
+    const cp=Breed.commonPairs(s.targets,pool,s.level);
+    const full=cp.pairs.filter(p=>p.count===cp.n);
+    html+=`<div class="breed-sec"><h3>동시 교배 (한 조합) <small>부모 1쌍으로 선택한 ${cp.n}마리를 모두 · 우선순위</small></h3>`;
+    if(full.length){
+      html+=`<div class="sim-banner ok">✅ 선택한 ${cp.n}마리를 <b>한 조합으로 모두</b> 낼 수 있습니다 (${full.length}개 조합).</div>`;
+      html+=`<div class="bc-list">${full.slice(0,15).map(p=>commonPairLine(p,ownSet)).join("")}</div>`;
+    } else {
+      const cs=Breed.commonSubsets(s.targets,pool,s.level);
+      html+=`<div class="sim-banner warn">⚠️ 선택한 ${cp.n}마리를 <b>한 조합으로 동시에 낼 수는 없습니다.</b> 아래는 <b>한 조합으로 함께 되는 묶음(부분집합)</b>입니다 — 큰 것부터.</div>`;
+      if(cs.maximal.length) html+=`<div class="subset-list">${cs.maximal.slice(0,12).map(sub=>subsetCard(sub,ownSet)).join("")}</div>`;
+      else html+=`<div class="bc-meta warn">함께 낼 수 있는 조합을 찾지 못했습니다.</div>`;
+      if(cs.impossible.length) html+=`<div class="sim-excluded"><b>어떤 조합으로도 안 나오는 목표:</b> ${cs.impossible.map(t=>`<span class="exc">${esc(Breed.byId(t).name)}</span>`).join(" ")}</div>`;
+    }
+    html+=`</div>`;
+    const noneT=s.targets.filter(t=>Breed.combosForTarget(t,pool,s.level,1).length===0);
+    if(noneT.length) html+=routeSection(noneT,startIds,ownSet,s.level);
+  }
+  box.innerHTML=html;
+}
+
+/* ---- n배럭 (별도 탭) ---- */
+function renderBreedBarracks(){
+  const s=state.breeding, ownSet=breedOwnedSet(), box=$("#bselect-result");
+  if(!s.targets.length){ box.innerHTML=`<p class="breed-empty">위에서 목표 드래곤을 추가하세요. 부모가 겹치지 않는 <b>${s.barracks}배럭</b>으로 얻는 법을 계산합니다.</p>`; return; }
+  const pool=Breed.parentPool(ownSet,s.ownedOnly), n=s.barracks;
+  let html="";
+  if(s.targets.length===1){
+    const t=s.targets[0], d=Breed.byId(t), plan=Breed.barracks(s.targets,n,pool,s.level), pt=plan.perTarget[0];
+    html+=`<div class="breed-sec"><h3>${esc(d.name)} — ${n}배럭 <small>부모 안 겹치는 ${n}개 배럭으로 노리기</small></h3>`;
+    if(!pt.picks.length){ html+=`<div class="sim-banner warn">⚠️ 보유 부모로 만들 수 있는 조합이 없습니다.</div>`; }
+    else{
+      const rounds=pt.successPct>0?Math.round(100/pt.successPct):0;
+      html+=`<div class="sim-banner ok">${pt.barracks}배럭 · 한 라운드에 <b>1마리+ ${pt.successPct.toFixed(2)}%</b> · 기대 ${rounds}라운드</div>`;
+      html+=`<div class="bc-list">${pt.picks.map(c=>bPairLine(c.a,c.b,c.p,c.ft,ownSet,t)).join("")}</div>`;
+      if(plan.used<n) html+=`<p class="bc-meta">※ 서로소 부모로 ${plan.used}배럭까지만 구성됩니다(보유 부모 부족).</p>`;
+    }
+    html+=`</div>`;
+  } else {
+    const plan=Breed.barracksForSet(s.targets,n,pool,s.level);
+    html+=`<div class="breed-sec"><h3>${plan.n}마리 모두 얻기 — ${n}배럭 <small>부모가 겹치지 않는 배럭으로 전부 커버</small></h3>`;
+    html+= plan.allCovered
+      ? `<div class="sim-banner ok">✅ ${n}배럭으로 선택한 <b>${plan.n}마리를 모두 동시 진행</b> 가능합니다 (${plan.used}배럭 사용).</div>`
+      : `<div class="sim-banner warn">⚠️ ${n}배럭으로는 <b>전부 동시 진행 불가</b> — 최대 <b>${plan.coveredCount}/${plan.n}마리</b>까지 커버됩니다. 배럭 수를 늘리거나 보유 부모를 추가하세요.</div>`;
+    if(plan.chosen.length) html+=`<div class="sim-grid">${plan.chosen.map((c,i)=>`
+      <div class="sim-slot"><div class="sim-slot-no">배럭 ${i+1}</div>
+        <div class="sim-recipe">${bPill(Breed.byId(c.a),ownSet)} <span class="breed-x">×</span> ${bPill(Breed.byId(c.b),ownSet)}</div>
+        <div class="sim-prob">${c.cov.map(t=>`${esc(Breed.byId(t).name)} <b>${c.probs[t].toFixed(2)}%</b>`).join(" · ")}</div>
+      </div>`).join("")}</div>`;
+    html+=`<div class="bc-meta" style="margin-top:10px">타깃별 한 라운드 성공확률: ${plan.perTarget.map(pt=>`${esc(Breed.byId(pt.target).name)} <b>${pt.covered?pt.successPct.toFixed(2)+'%':'미커버'}</b>`).join(" · ")}</div>`;
+    const unc=plan.perTarget.filter(pt=>!pt.covered);
+    if(unc.length) html+=`<div class="sim-excluded"><b>커버 못한 목표:</b> ${unc.map(pt=>`<span class="exc">${esc(Breed.byId(pt.target).name)}</span>`).join(" ")}</div>`;
+    html+=`</div>`;
+  }
+  box.innerHTML=html;
+}
+
+function renderPickup(){
+  const s=state.breeding, admin=Store.isAdmin(), box=$("#breed-pickup");
+  const names=Breed.getPickupNames();
+  const chips=names.length
+    ? names.map(n=>{const d=Breed.byName(n);return d?bPill(d,breedOwnedSet()):`<span class="bpill">${esc(n)}</span>`;}).join(" ")
+    : '<span class="muted">없음</span>';
+  let html=`<div class="pk-bar"><span class="pk-icon">🌟</span>
+    <span class="pk-label">픽업(확률업) 적용 중</span> ${chips}
+    <span class="pk-note">고정확률 +기본의 50% · 가중치 ×2.5</span>`;
+  if(admin) html+=`<button class="btn btn-sm" id="pk-edit">${s.pickupEdit?'닫기':'픽업 편집'}</button>`;
+  html+=`</div>`;
+  if(admin && s.pickupEdit){
+    const cur=names.map(n=>{const d=Breed.byName(n);return d?`<span class="tchip"><span class="bpill-dot" style="background:${elColor(d.elementNames[0])}"></span>${esc(n)}<button class="bx" data-pkdel="${esc(n)}">✕</button></span>`:'';}).join("");
+    html+=`<div class="pk-editor">
+      <div class="pk-edit-row">
+        <div class="breed-combo" style="flex:1;min-width:220px">
+          <input type="search" id="pk-input" class="search" placeholder="픽업에 추가할 드래곤 검색…" autocomplete="off">
+          <div class="combo-list" id="pk-list" hidden></div>
+        </div>
+      </div>
+      <div class="breed-chosen" style="margin:10px 0 0">${cur||'<span class="muted">픽업 없음</span>'}</div>
+      <p class="pk-msg" id="pk-msg"></p>
+    </div>`;
+  }
+  box.innerHTML=html;
+  if(admin){
+    const eb=$("#pk-edit"); if(eb) eb.onclick=()=>{ s.pickupEdit=!s.pickupEdit; renderBreeding(); };
+    if(s.pickupEdit){
+      $$("#breed-pickup .bx").forEach(b=>b.onclick=()=>setPickupAndSave(Breed.getPickupNames().filter(n=>n!==b.dataset.pkdel)));
+      makeCombo("#pk-input","#pk-list",
+        q=>breedMatches(q).filter(d=>!Breed.getPickupNames().includes(d.name)),
+        id=>{ const nm=Breed.byId(id).name; setPickupAndSave([...Breed.getPickupNames(),nm]); });
+    }
+  }
+}
+async function setPickupAndSave(names){
+  Breed.setPickup(names); state.breeding.pickup=names;
+  renderBreeding();
+  const { error }=await Store.savePickup(names);
+  const m=$("#pk-msg");
+  if(m) m.textContent = error ? `저장 실패: ${error.message} (settings 테이블/SQL 필요)` : "저장됨 — 모든 사용자에게 적용됩니다.";
+}
+
+function renderBreeding(){
+  const s=state.breeding;
+  // 모드 전환
+  $$("#breed-modes .bmode").forEach(b=>b.classList.toggle("active",b.dataset.bmode===s.mode));
+  const isSel = s.mode==="target"||s.mode==="barracks";
+  $("#bpanel-select").hidden = !isSel;
+  $("#bpanel-parent").hidden = s.mode!=="parent";
+  $("#brk-ctrl").hidden = s.mode!=="barracks";
+  // 안내문
+  const hint=$("#bselect-hint");
+  if(s.mode==="target") hint.innerHTML=`목표를 추가하세요. <b>1마리</b>면 그 드래곤의 교배 방법을 우선순위(확률↓·실패시간↑)로, <b>2마리+</b>면 <b>한 조합(부모 1쌍)으로 모두</b> 내는 법을 보여주고, 불가하면 함께 되는 <b>부분집합</b>을 크기순으로 나열합니다.`;
+  else if(s.mode==="barracks") hint.innerHTML=`<b>n배럭</b>: 부모가 겹치지 않는 여러 배럭을 계속 돌려 목표를 얻는 법. <b>1마리</b>면 성공확률을 높이는 배럭 조합, <b>2마리+</b>면 <b>모두 얻도록</b> 배럭 배정(불가하면 최대한 많이 커버).`;
+  // 픽업 바
+  renderPickup();
+  // 보유 요약
+  const ownSet=breedOwnedSet();
+  $("#breed-own").innerHTML=`보유 부모풀 <b>${Breed.parentPool(ownSet,true).length}</b>종 <small>(희귀 10종 기본 포함)</small>`;
+  if(s.mode==="parent") renderBreedParent();
+  else { renderTargetChips(); renderSelectResult(); }
+}
+
+async function initBreeding(){
+  const s=state.breeding;
+  Breed.load(DB.breeding_dragons);
+  // 픽업(확률업) 로드 → 엔진 반영
+  const pk=await Store.loadPickup(); s.pickup=pk; Breed.setPickup(pk);
+  // 드래곤 칩/이름 클릭 → 도감 상세 (이벤트 위임)
+  $("#view-breeding").addEventListener("click",e=>{
+    if(e.target.closest(".bx")||e.target.closest(".combo-item")) return;
+    const el=e.target.closest("[data-dragon]");
+    if(el) openDragon(el.dataset.dragon);
+  });
+  // 모드
+  $$("#breed-modes .bmode").forEach(b=>b.onclick=()=>{ s.mode=b.dataset.bmode; renderBreeding(); });
+  // 컨텍스트
+  $("#breed-level").addEventListener("input",e=>{ s.level=Math.max(1,Math.min(99,+e.target.value||1)); renderBreeding(); });
+  $("#breed-ownedonly").addEventListener("change",e=>{ s.ownedOnly=e.target.checked; renderBreeding(); });
+  // 목표 콤보 (목표·배럭 공유)
+  makeCombo("#btarget-input","#btarget-list",
+    q=>breedMatches(q,{breedableOnly:true}).filter(d=>!s.targets.includes(d.id)),
+    id=>{ if(!s.targets.includes(id)) s.targets.push(id); $("#btarget-input").value=""; renderTargetChips(); renderSelectResult(); });
+  // 배럭 수
+  $("#brk-n").addEventListener("change",e=>{ s.barracks=+e.target.value; if(state.breeding.mode==="barracks") renderBreedBarracks(); });
+  // 부모 콤보 ×2
+  makeCombo("#bp1-input","#bp1-list", q=>breedMatches(q,{parentOnly:true}), id=>{ s.p1=id; $("#bp1-input").value=""; renderBreedParent(); });
+  makeCombo("#bp2-input","#bp2-list", q=>breedMatches(q,{parentOnly:true}), id=>{ s.p2=id; $("#bp2-input").value=""; renderBreedParent(); });
+  renderBreeding();
+}
+
+/* ====================== TYPES (상성) ====================== */
+const TYPE_SYM = { strong:"◎", normal:"·", weak:"▽", veryweak:"▼" };
+const lvl = (atk,def) => (DB.type_chart.chart[atk] && DB.type_chart.chart[atk][def]) || "normal";
+
+// 한 속성 기준 공격/방어 상성 분류
+function typeRelations(el){
+  const order=DB.type_chart.order;
+  const atk={strong:[],weak:[],veryweak:[]};
+  order.forEach(d=>{ const l=lvl(el,d); if(atk[l]) atk[l].push(d); });
+  const def={strong:[],weak:[],veryweak:[]};       // strong=내가 굉장하게 맞는 약점
+  order.forEach(a=>{ const l=lvl(a,el); if(def[l]) def[l].push(a); });
+  return {atk,def};
+}
+const elList = (arr)=>arr.length?arr.map(e=>elBadge(e)).join(" "):'<span class="muted">—</span>';
+
+function focusCard(el){
+  const r=typeRelations(el);
+  return `<div class="tf-card">
+    <div class="tf-head">${elBadge(el)} <b>${esc(el)}</b> 속성 상성</div>
+    <div class="tf-grid">
+      <div class="tf-col"><h4>⚔️ 이 속성으로 공격할 때</h4>
+        <div class="tf-row"><span class="tf-k strong">굉장함</span>${elList(r.atk.strong)}</div>
+        <div class="tf-row"><span class="tf-k weak">별로</span>${elList(r.atk.weak)}</div>
+        <div class="tf-row"><span class="tf-k veryweak">매우 별로</span>${elList(r.atk.veryweak)}</div>
+      </div>
+      <div class="tf-col"><h4>🛡️ 이 속성으로 맞을 때</h4>
+        <div class="tf-row"><span class="tf-k strong">약점(굉장히 맞음)</span>${elList(r.def.strong)}</div>
+        <div class="tf-row"><span class="tf-k weak">저항(별로)</span>${elList(r.def.weak)}</div>
+        <div class="tf-row"><span class="tf-k veryweak">강저항(매우 별로)</span>${elList(r.def.veryweak)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTypes(){
+  const order=DB.type_chart.order, focus=state.types.focus;
+  // 칩
+  buildElementChips("#type-chips",order,()=>state.types.focus,v=>{state.types.focus=v;renderTypes();});
+  // 범례
+  $("#type-legend").innerHTML=Object.entries(DB.type_chart.levels).map(([k,v])=>
+    `<span class="tl"><span class="tcell ${k}">${TYPE_SYM[k]}</span>${esc(v.label)}${v.mult?` <small>(${esc(v.mult)})</small>`:''}</span>`).join("");
+  // 포커스 카드
+  $("#type-focus").innerHTML = focus ? focusCard(focus) : "";
+  // 매트릭스
+  const head=`<thead><tr><th class="corner">공격＼방어</th>${order.map(d=>
+    `<th class="${focus&&d===focus?'col-focus':''}">${elBadge(d)}</th>`).join("")}</tr></thead>`;
+  const body=`<tbody>${order.map(a=>{
+    const rf=focus&&a===focus;
+    return `<tr class="${rf?'row-focus':''}"><th class="rowh">${elBadge(a)}</th>${order.map(d=>{
+      const l=lvl(a,d), hot=focus&&(a===focus||d===focus);
+      return `<td class="tcell ${l}${hot?' hot':''}" title="${esc(a)}→${esc(d)}: ${esc(DB.type_chart.levels[l].label)}">${TYPE_SYM[l]}</td>`;
+    }).join("")}</tr>`;
+  }).join("")}</tbody>`;
+  $("#type-matrix").innerHTML=head+body;
+}
+
+// 드래곤 상세용 상성 섹션 (element + subElements)
+function typeSectionFor(d){
+  if(!DB.type_chart) return "";
+  const els=[d.element,...(d.subElements||[])].filter(e=>DB.type_chart.order.includes(e));
+  if(!els.length) return "";
+  const blocks=els.map(el=>{
+    const r=typeRelations(el);
+    const line=(label,arr,cls)=>`<div class="tf-row"><span class="tf-k ${cls}">${label}</span>${elList(arr)}</div>`;
+    return `<div class="m-type-block">
+      <div class="m-type-el">${elBadge(el)}</div>
+      <div class="m-type-lines">
+        <div class="m-type-sub">공격</div>
+        ${line("굉장함",r.atk.strong,"strong")}${line("약함",r.atk.weak.concat(r.atk.veryweak),"weak")}
+        <div class="m-type-sub">방어 약점</div>
+        ${line("굉장히 맞음",r.def.strong,"strong")}${line("저항",r.def.weak.concat(r.def.veryweak),"weak")}
+      </div></div>`;
+  }).join("");
+  return `<div class="m-section"><h4>속성 상성</h4>${blocks}
+    ${els.length>1?'<small class="muted">다속성 드래곤은 인게임에서 속성별 상성이 합산 적용됩니다. 위는 속성별 개별 표기입니다.</small>':''}</div>`;
+}
+
+/* ====================== 수정사항 요청 ====================== */
+const RQ_GRADES=["전설","영웅","희귀"];
+// 결과 확률(%) → 고정확률 드래곤 티어 예측
+function predictTier(pct){
+  if(!pct||pct<=0) return null;
+  const bp=[{p:0.75,t:8,fp:75},{p:1.5,t:7,fp:150},{p:3,t:6,fp:300},{p:5,t:5,fp:500},{p:10,t:5,fp:1000}];
+  let best=bp[0],bd=1e9; for(const b of bp){const d=Math.abs(b.p-pct);if(d<bd){bd=d;best=b;}}
+  const clean=bd<=Math.max(0.12,best.p*0.1);
+  return { tier:best.t, fixedProportion:best.fp, clean,
+    note: clean?`고정확률 드래곤 추정 → 티어 ${best.t} (fixed ${best.fp}bp, 최대 ${best.p}%)`
+      :`가장 가까운 고정확률 티어 ${best.t}(${best.p}%). 값이 정확히 안 맞으면 가중치(portion) 드래곤일 수 있어 티어 추정이 부정확합니다.` };
+}
+// 승인된 요청을 도감에 병합
+async function mergeApproved(){
+  let list=[]; try{ list=await Store.loadApproved(); }catch{}
+  let added=0;
+  for(const s of (list||[])){
+    if(!s||!s.payload||!s.payload.name) continue;
+    if(s.type==="dragon"){
+      const d=s.payload;
+      if(!DB.dragons.some(x=>x.name===d.name)){
+        d.subElements=d.subElements||[]; d.stats=d.stats||{};
+        d.total=d.total||Object.values(d.stats).reduce((a,b)=>a+(+b||0),0);
+        d.__approved=true; DB.dragons.push(d); added++;
+      }
+    } else if(s.type==="orb"){
+      if(!DB.orbs.some(x=>x.name===s.payload.name)){ s.payload.__approved=true; DB.orbs.push(s.payload); added++; }
+    }
+  }
+  rebuildAbilities();
+  return added;
+}
+function refreshAll(){
+  $("#cnt-dragons").textContent=DB.dragons.length;
+  $("#cnt-orbs").textContent=DB.orbs.length;
+  renderDragons(); renderOrbs(); renderAbilities(); renderCollection(); renderCodex();
+}
+function reqMsg(t,err){ state.request.msg={t,err:!!err}; const m=$("#req-msg"); if(m){m.textContent=t;m.classList.toggle("err",!!err);} }
+
+/* ---- 폼 빌더 ---- */
+function rqField(label,inner,hint){ return `<label class="rq-field"><span class="rq-lbl">${label}</span>${inner}${hint?`<small class="rq-hint">${hint}</small>`:""}</label>`; }
+function rqSel(id,opts,ph){ return `<select id="${id}">${ph?`<option value="">${ph}</option>`:""}${opts.map(o=>`<option>${o}</option>`).join("")}</select>`; }
+function rqInp(id,type,ph){ return `<input id="${id}" type="${type||'text'}" placeholder="${ph||''}" autocomplete="off">`; }
+function dragonForm(){
+  const els=ELEMENT_ORDER;
+  return `<div class="rq-grid">
+    ${rqField("이름",rqInp("rq-d-name","text","예: 원더 드래곤"))}
+    ${rqField("등급",rqSel("rq-d-grade",RQ_GRADES,"선택"))}
+    ${rqField("주 속성",rqSel("rq-d-el",els,"선택"))}
+    ${rqField("부속성1",rqSel("rq-d-sub1",els,"없음"))}
+    ${rqField("부속성2",rqSel("rq-d-sub2",els,"없음"))}
+    ${rqField("공격 타입",rqSel("rq-d-atk-type",["물리","마법"],"선택"))}
+    ${rqField("획득 방법",rqInp("rq-d-source","text","예: 교배 / 뽑기 / 레이드"))}
+  </div>
+  <div class="rq-sub">능력치 (Lv.50·5성)</div>
+  <div class="rq-grid stats6">
+    ${rqField("체력",rqInp("rq-d-hp","number"))}${rqField("공격",rqInp("rq-d-atk","number"))}${rqField("방어",rqInp("rq-d-def","number"))}
+    ${rqField("마력",rqInp("rq-d-mag","number"))}${rqField("저항",rqInp("rq-d-res","number"))}${rqField("속도",rqInp("rq-d-spd","number"))}
+  </div>
+  <div class="rq-sub">특성 · 스킬</div>
+  <div class="rq-grid">
+    ${rqField("특성 이름",rqInp("rq-d-ability"))}
+    ${rqField("평타 이름",rqInp("rq-d-basic"))}
+    ${rqField("필살기 이름",rqInp("rq-d-ult"))}
+    ${rqField("필살기 타입",rqSel("rq-d-ult-type",["물리","마법","변화"],"선택"))}
+    ${rqField("필살기 명중",rqInp("rq-d-acc","number"))}
+    ${rqField("필살기 위력",rqInp("rq-d-power","number"))}
+  </div>
+  ${rqField("특성 효과",`<textarea id="rq-d-abilityEffect" rows="2"></textarea>`)}
+  ${rqField("필살기 효과",`<textarea id="rq-d-ultEffect" rows="2"></textarea>`)}
+  <div class="rq-sub">교배 확률 (선택) — 부모 조합과 결과 확률로 티어 예측</div>
+  <div class="rq-grid">
+    ${rqField("부모1",rqInp("rq-d-p1"))}${rqField("부모2",rqInp("rq-d-p2"))}
+    ${rqField("결과 확률(%)",rqInp("rq-d-resultPct","number","예: 1.5"))}
+  </div>
+  <div class="rq-predict"><button type="button" class="btn btn-sm" id="rq-predict-btn">티어 예측</button> <span id="rq-predict-out" class="muted"></span></div>`;
+}
+function orbForm(){
+  return `<div class="rq-grid">
+    ${rqField("이름",rqInp("rq-o-name","text","예: 안식의 소각 보주"))}
+    ${rqField("속성",rqSel("rq-o-el",ELEMENT_ORDER,"선택"))}
+    ${rqField("등급",rqSel("rq-o-grade",RQ_GRADES,"선택"))}
+    ${rqField("스킬 이름",rqInp("rq-o-skill"))}
+    ${rqField("스킬 타입",rqSel("rq-o-type",["물리","마법","변화"],"선택"))}
+    ${rqField("명중",rqInp("rq-o-acc","number"))}
+    ${rqField("위력",rqInp("rq-o-power","number","변화는 비워두세요"))}
+    ${rqField("비용",rqInp("rq-o-cost","number"))}
+    ${rqField("능력치 보너스",rqInp("rq-o-bonus","text","예: +22"))}
+    ${rqField("획득처",rqInp("rq-o-source","text","예: 뽑기"))}
+  </div>
+  ${rqField("효과",`<textarea id="rq-o-effect" rows="2"></textarea>`)}`;
+}
+function buildDragonPayload(){
+  const v=id=>{const e=$("#"+id);return e?e.value.trim():"";}, num=id=>{const n=+v(id);return isNaN(n)?0:n;};
+  const subs=[v("rq-d-sub1"),v("rq-d-sub2")].filter(x=>x&&x!=="없음");
+  const stats={hp:num("rq-d-hp"),atk:num("rq-d-atk"),def:num("rq-d-def"),mag:num("rq-d-mag"),res:num("rq-d-res"),spd:num("rq-d-spd")};
+  const p={element:v("rq-d-el"),subElements:subs,grade:v("rq-d-grade"),name:v("rq-d-name"),attackType:v("rq-d-atk-type"),
+    stats,total:Object.values(stats).reduce((a,b)=>a+b,0),ability:v("rq-d-ability"),abilityEffect:v("rq-d-abilityEffect"),
+    basicAttack:v("rq-d-basic"),ultimate:v("rq-d-ult"),ultimateType:v("rq-d-ult-type"),accuracy:num("rq-d-acc"),power:num("rq-d-power"),
+    ultimateEffect:v("rq-d-ultEffect"),source:v("rq-d-source")};
+  const rp=v("rq-d-resultPct");
+  if(v("rq-d-p1")||v("rq-d-p2")||rp) p.breedingHint={parent1:v("rq-d-p1"),parent2:v("rq-d-p2"),resultPct:+rp||null,predict:predictTier(+rp)};
+  return p;
+}
+function buildOrbPayload(){
+  const v=id=>{const e=$("#"+id);return e?e.value.trim():"";}, num=id=>{const n=+v(id);return isNaN(n)?0:n;};
+  const type=v("rq-o-type");
+  return {element:v("rq-o-el"),grade:v("rq-o-grade"),name:v("rq-o-name"),skill:v("rq-o-skill"),type,
+    accuracy:num("rq-o-acc"),power:type==="변화"?"-":num("rq-o-power"),cost:num("rq-o-cost"),
+    statBonus:v("rq-o-bonus")||"",effect:v("rq-o-effect"),source:v("rq-o-source")};
+}
+const dragSumLine=p=>`${esc(p.element||'?')}${(p.subElements||[]).length?'·'+esc(p.subElements.join('·')):''} / ${esc(p.grade||'')} / ${esc(p.attackType||'')} · 특성 ${esc(p.ability||'-')} · 필살기 ${esc(p.ultimate||'-')}`;
+const orbSumLine=p=>`${esc(p.element||'?')} / ${esc(p.grade||'')} / ${esc(p.skill||'-')} (${esc(p.type||'')}) 명중 ${esc(p.accuracy)} 위력 ${esc(p.power)}`;
+
+async function loadReqPending(){
+  const box=$("#req-pending"); if(!box) return;
+  const list=await Store.loadPending();
+  if(!list.length){ box.innerHTML=`<p class="muted">대기 중인 요청이 없습니다.</p>`; return; }
+  box.innerHTML=list.map(x=>`<div class="req-item">
+    <div class="req-item-h"><b>${esc(x.payload.name||'(이름없음)')}</b> <span class="badge badge-atk">${x.type==='dragon'?'드래곤':'보주'}</span> <small class="muted">${esc(x.created_by||'')}</small></div>
+    <div class="req-item-b">${x.type==='dragon'?dragSumLine(x.payload):orbSumLine(x.payload)}</div>
+    <div class="req-item-a"><button class="btn btn-sm btn-primary" data-appr="${x.id}">승인·등록</button><button class="btn btn-sm" data-rej="${x.id}">반려</button></div>
+  </div>`).join("");
+  box.querySelectorAll("[data-appr]").forEach(b=>b.onclick=async()=>{ b.disabled=true; const {error}=await Store.reviewSubmission(b.dataset.appr,"approved"); if(error){reqMsg("승인 실패: "+error.message,true);b.disabled=false;return;} await mergeApproved(); refreshAll(); loadReqPending(); reqMsg("승인·등록 완료 — 도감에 반영됨.",false); });
+  box.querySelectorAll("[data-rej]").forEach(b=>b.onclick=async()=>{ b.disabled=true; await Store.reviewSubmission(b.dataset.rej,"rejected"); loadReqPending(); });
+}
+async function loadReqMine(){
+  const box=$("#req-mine"); if(!box) return;
+  const list=await Store.loadMine();
+  if(!list.length){ box.innerHTML=""; return; }
+  const st={pending:"⏳ 대기",approved:"✅ 승인",rejected:"❌ 반려"};
+  box.innerHTML=`<h3>내 요청 (${list.length})</h3>`+list.map(x=>`<div class="req-mine-row"><span>${esc(x.payload.name||'')} <small class="muted">${x.type==='dragon'?'드래곤':'보주'}</small></span><span class="req-st ${x.status}">${st[x.status]||x.status}</span></div>`).join("");
+}
+
+function renderRequest(){
+  const box=$("#request-body"); if(!box) return;
+  const s=state.request, admin=Store.isAdmin(), loggedIn=Store.isLoggedIn(), configured=Store.isConfigured();
+  let html=`<div class="req-hero"><h2>수정사항 요청</h2>
+    <p class="sub">신규 드래곤·보주 정보를 제출하면 <b>관리자 승인 후 도감에 등록</b>됩니다.${admin?' <b class="req-adm">관리자 계정: 즉시 등록됩니다.</b>':''}</p></div>`;
+  if(!configured){ box.innerHTML=html+`<div class="req-note warn">Supabase가 설정되지 않아 요청 기능을 쓸 수 없습니다.</div>`; return; }
+  if(!loggedIn){ box.innerHTML=html+`<div class="req-note">요청을 보내려면 <a href="#" id="req-login">로그인</a>이 필요합니다.</div>`;
+    const lg=$("#req-login"); if(lg) lg.onclick=e=>{e.preventDefault();openAuth();}; return; }
+  html+=`<div class="req-type"><button class="req-tbtn${s.type==='dragon'?' active':''}" data-rt="dragon">🐲 드래곤</button><button class="req-tbtn${s.type==='orb'?' active':''}" data-rt="orb">🔮 보주</button></div>`;
+  html+=`<div class="req-form">${s.type==='dragon'?dragonForm():orbForm()}</div>`;
+  html+=rqField("메모(선택)",`<textarea id="rq-note" rows="1" placeholder="출처/비고"></textarea>`);
+  html+=`<div class="req-actions"><button class="btn btn-primary" id="req-submit">${admin?'바로 등록':'요청 보내기'}</button><span class="req-msg${s.msg&&s.msg.err?' err':''}" id="req-msg">${s.msg?esc(s.msg.t):''}</span></div>`;
+  if(admin) html+=`<div class="req-admin"><h3>대기 중인 요청</h3><div id="req-pending" class="req-list">불러오는 중…</div></div>`;
+  html+=`<div id="req-mine" class="req-mine"></div>`;
+  box.innerHTML=html;
+  $$("#request-body .req-tbtn").forEach(b=>b.onclick=()=>{ s.type=b.dataset.rt; s.msg=null; renderRequest(); });
+  const pb=$("#rq-predict-btn"); if(pb) pb.onclick=()=>{ const pr=predictTier(+($("#rq-d-resultPct").value)); $("#rq-predict-out").textContent = pr?pr.note:"결과 확률을 입력하세요."; };
+  $("#req-submit").onclick=async()=>{
+    const type=s.type, payload=type==="dragon"?buildDragonPayload():buildOrbPayload();
+    if(!payload.name){ reqMsg("이름을 입력하세요.",true); return; }
+    if(!payload.element||!payload.grade){ reqMsg("속성과 등급을 선택하세요.",true); return; }
+    const dup=type==="dragon"?DB.dragons.some(d=>d.name===payload.name):DB.orbs.some(o=>o.name===payload.name);
+    if(dup){ reqMsg("이미 도감에 있는 이름입니다.",true); return; }
+    reqMsg("전송 중…");
+    const { error, approved }=await Store.submitRequest(type,payload,$("#rq-note")?$("#rq-note").value.trim():"");
+    if(error){ reqMsg("실패: "+error.message+" (submissions 테이블 SQL 필요)",true); return; }
+    if(approved){ await mergeApproved(); refreshAll(); s.msg={t:"등록 완료 — 도감에 반영되었습니다.",err:false}; }
+    else s.msg={t:"요청을 보냈습니다. 관리자 승인 후 등록됩니다.",err:false};
+    renderRequest();
+  };
+  if(admin) loadReqPending();
+  loadReqMine();
+}
+
+/* ====================== AUTH UI ====================== */
+function renderAuthBox(){
+  const box=$("#auth-box");
+  if(Store.isCloud()){
+    box.innerHTML=`<span class="user-email">${esc(Store.getUser().email)}</span><button class="btn btn-sm" id="btn-logout">로그아웃</button>`;
+    $("#btn-logout").onclick=()=>Store.signOut();
+  } else if(Store.isConfigured()){
+    box.innerHTML=`<span class="guest-chip" title="로그인은 선택입니다. 보유 현황은 이 브라우저에 저장됩니다">게스트</span><button class="btn btn-sm btn-primary" id="btn-login">로그인</button>`;
+    $("#btn-login").onclick=openAuth;
+  } else {
+    box.innerHTML=`<span class="guest-chip" title="config.js에 Supabase 키를 넣으면 로그인이 켜집니다">게스트 · 로컬 저장</span>`;
+  }
+}
+function openAuth(){ $("#auth-msg").textContent=""; $("#auth-modal").hidden=false; document.body.style.overflow="hidden"; }
+function closeAuth(){ $("#auth-modal").hidden=true; document.body.style.overflow=""; }
+function authMsg(t,err){ const m=$("#auth-msg"); m.textContent=t; m.classList.toggle("err",!!err); }
+
+function bindAuth(){
+  $("#auth-close").onclick=closeAuth;
+  $("#auth-modal").addEventListener("click",e=>{if(e.target.id==="auth-modal")closeAuth();});
+  $("#auth-form").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const email=$("#auth-email").value.trim(), pw=$("#auth-password").value;
+    authMsg("로그인 중…");
+    const { error }=await Store.signIn(email,pw);
+    if(error) authMsg(error.message,true); else closeAuth();
+  });
+  $("#auth-signup").onclick=async()=>{
+    const email=$("#auth-email").value.trim(), pw=$("#auth-password").value;
+    if(!email||pw.length<6){authMsg("이메일과 6자 이상 비밀번호를 입력하세요.",true);return;}
+    authMsg("가입 중…");
+    const { data, error }=await Store.signUp(email,pw);
+    if(error) authMsg(error.message,true);
+    else if(data.session) closeAuth();
+    else authMsg("확인 메일을 보냈습니다. 메일의 링크를 눌러 인증을 완료하세요.");
+  };
+  $("#auth-guest").onclick=closeAuth;
+}
+
+/* ===== MODAL ===== */
+function openModal(){$("#modal").hidden=false;document.body.style.overflow="hidden";}
+function closeModal(){$("#modal").hidden=true;document.body.style.overflow="";}
+
+/* ===== 이벤트 바인딩 ===== */
+function bind(){
+  const d=state.dragons;
+  $("#dragon-search").addEventListener("input",e=>{d.search=e.target.value;renderDragons();});
+  $("#dragon-owned").addEventListener("change",e=>{d.owned=e.target.value;renderDragons();});
+  $("#dragon-attack").addEventListener("change",e=>{d.attack=e.target.value;renderDragons();});
+  $("#dragon-sort").addEventListener("change",e=>{d.sort=e.target.value;renderDragons();});
+
+  const o=state.orbs;
+  $("#orb-search").addEventListener("input",e=>{o.search=e.target.value;renderOrbs();});
+  $("#orb-grade").addEventListener("change",e=>{o.grade=e.target.value;renderOrbs();});
+  $("#orb-type").addEventListener("change",e=>{o.type=e.target.value;renderOrbs();});
+  $("#orb-sort").addEventListener("change",e=>{o.sort=e.target.value;renderOrbs();});
+
+  $("#ability-search").addEventListener("input",e=>{state.abilities.search=e.target.value;renderAbilities();});
+
+  $("#modal-close").addEventListener("click",closeModal);
+  $("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeAuth();}});
+}
+
+/* ===== INIT ===== */
+async function init(){
+  try{ await loadAll(); }
+  catch(err){
+    document.querySelector("main").innerHTML=`<div style="padding:40px;text-align:center;color:var(--muted)">
+      <h2 style="color:var(--text);margin-bottom:10px">데이터를 불러오지 못했습니다</h2>
+      <p>${esc(err.message)}</p>
+      <p style="margin-top:14px">로컬에서 열 때는 정적 서버가 필요합니다:<br>
+      <code style="color:var(--accent2)">python3 -m http.server</code> 실행 후 <code>localhost:8000</code> 접속</p></div>`;
+    return;
+  }
+  initTabs(); bind(); bindAuth();
+
+  // 저장소(인증·보유현황) 초기화 + 변경 반영
+  await Store.init();
+  // 승인된 요청을 도감에 병합(재배포 없이 반영) + 특성 자동 재생성
+  try{ await mergeApproved(); }catch(e){ rebuildAbilities(); }
+  Store.on("change",()=>{ renderDragons(); renderCollection(); renderBreeding(); });
+  Store.on("auth",()=>{ renderAuthBox(); renderCollection(); renderBreeding(); renderRequest(); });
+
+  // 카운트
+  $("#cnt-dragons").textContent=DB.dragons.length;
+  $("#cnt-orbs").textContent=DB.orbs.length;
+  $("#cnt-abilities").textContent=DB.abilities.length;
+
+  // 셀렉트 옵션
+  fillSelect($("#orb-grade"),[...new Set(DB.orbs.map(o=>o.grade))]);
+  // 등급·획득처 다중 선택 칩
+  const toggle=(arr,v)=>{ if(v===null){arr.length=0;return;} const i=arr.indexOf(v); if(i>=0)arr.splice(i,1); else arr.push(v); };
+  buildMultiChips("#dragon-grades",[...new Set(DB.dragons.map(d=>d.grade))],
+    ()=>state.dragons.grades,v=>{toggle(state.dragons.grades,v);renderDragons();});
+  buildMultiChips("#dragon-sources",[...new Set(DB.dragons.map(d=>d.source))].sort((a,b)=>a.localeCompare(b,"ko")),
+    ()=>state.dragons.sources,v=>{toggle(state.dragons.sources,v);renderDragons();});
+
+  // 속성칩
+  const dEls=ELEMENT_ORDER.filter(e=>DB.dragons.some(d=>d.element===e));
+  const oEls=ELEMENT_ORDER.filter(e=>DB.orbs.some(o=>o.element===e));
+  buildElementChips("#dragon-elements",dEls,()=>state.dragons.element,v=>{state.dragons.element=v;renderDragons();});
+  buildElementChips("#orb-elements",oEls,()=>state.orbs.element,v=>{state.orbs.element=v;renderOrbs();});
+
+  renderAuthBox();
+  renderDragons(); renderOrbs(); renderAbilities(); renderCodex(); renderCollection();
+  renderTypes(); renderRequest();
+  await initBreeding();
+}
+document.addEventListener("DOMContentLoaded",init);

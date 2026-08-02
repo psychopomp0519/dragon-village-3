@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>드래곤빌리지3 도감 — 드래곤 · 보주 정보</title>
+<meta name="description" content="드래곤빌리지3 드래곤 121종, 보주 72종, 특성 사전, 상태이상·날씨 용어를 한눈에. 인게임 캡처 기반 정리 도감.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <h1 class="logo">🐲 드래곤빌리지<span>3</span> 도감</h1>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-view="dragons">드래곤 <em id="cnt-dragons">0</em></button>
+      <button class="tab" data-view="orbs">보주 <em id="cnt-orbs">0</em></button>
+      <button class="tab" data-view="abilities">특성 <em id="cnt-abilities">0</em></button>
+      <button class="tab" data-view="breeding">교배 🧬</button>
+      <button class="tab" data-view="types">상성 ⚔️</button>
+      <button class="tab" data-view="request">요청 ✍️</button>
+      <button class="tab" data-view="collection">내 컬렉션 <em id="cnt-owned">0</em></button>
+      <button class="tab" data-view="codex">요약 · 용어</button>
+    </nav>
+    <div class="auth-box" id="auth-box"></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ DRAGONS ============ -->
+  <section id="view-dragons" class="view active">
+    <div class="toolbar">
+      <input type="search" id="dragon-search" class="search" placeholder="이름 · 속성 · 특성 · 스킬 검색…" autocomplete="off">
+      <div class="selects">
+        <select id="dragon-owned"><option value="">전체 보유</option><option value="own">보유만</option><option value="miss">미보유만</option></select>
+        <select id="dragon-attack"><option value="">물리/마법</option><option value="물리">물리</option><option value="마법">마법</option></select>
+        <select id="dragon-sort">
+          <option value="total">합계 ↓</option>
+          <option value="hp">체력 ↓</option>
+          <option value="atk">공격 ↓</option>
+          <option value="def">방어 ↓</option>
+          <option value="mag">마력 ↓</option>
+          <option value="res">저항 ↓</option>
+          <option value="spd">속도 ↓</option>
+          <option value="name">이름순</option>
+        </select>
+      </div>
+    </div>
+    <div class="chip-filters">
+      <div class="cf-group"><span class="cf-label">속성</span><div class="chips" id="dragon-elements"></div></div>
+      <div class="cf-group"><span class="cf-label">등급</span><div class="chips" id="dragon-grades"></div></div>
+      <div class="cf-group"><span class="cf-label">획득처</span><div class="chips" id="dragon-sources"></div></div>
+    </div>
+    <p class="result-count" id="dragon-count"></p>
+    <div class="card-grid" id="dragon-grid"></div>
+  </section>
+
+  <!-- ============ ORBS ============ -->
+  <section id="view-orbs" class="view">
+    <div class="toolbar">
+      <input type="search" id="orb-search" class="search" placeholder="보주명 · 스킬 · 효과 검색…" autocomplete="off">
+      <div class="selects">
+        <select id="orb-grade"><option value="">전체 등급</option></select>
+        <select id="orb-type"><option value="">전체 타입</option><option value="물리">물리</option><option value="마법">마법</option><option value="변화">변화</option></select>
+        <select id="orb-sort">
+          <option value="power">위력 ↓</option>
+          <option value="accuracy">명중 ↓</option>
+          <option value="name">이름순</option>
+        </select>
+      </div>
+    </div>
+    <div class="chips" id="orb-elements"></div>
+    <p class="result-count" id="orb-count"></p>
+    <div class="table-wrap">
+      <table class="data-table" id="orb-table">
+        <thead><tr>
+          <th>속성</th><th>등급</th><th>보주명</th><th>스킬</th><th>타입</th>
+          <th>명중</th><th>위력</th><th>비용</th><th>능력치</th><th>효과</th><th>획득처</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ ABILITIES ============ -->
+  <section id="view-abilities" class="view">
+    <div class="toolbar">
+      <input type="search" id="ability-search" class="search" placeholder="특성명 · 효과 · 드래곤 검색…" autocomplete="off">
+    </div>
+    <p class="result-count" id="ability-count"></p>
+    <div class="ability-grid" id="ability-grid"></div>
+  </section>
+
+  <!-- ============ BREEDING ============ -->
+  <section id="view-breeding" class="view">
+    <div class="breed-head">
+      <div class="breed-modes" id="breed-modes">
+        <button class="bmode active" data-bmode="target">🎯 목표로 찾기</button>
+        <button class="bmode" data-bmode="barracks">🏠 n배럭</button>
+        <button class="bmode" data-bmode="parent">👪 부모로 찾기</button>
+      </div>
+      <div class="breed-ctx">
+        <label class="breed-lvl">테이머 Lv <input type="number" id="breed-level" min="1" max="99" value="28"></label>
+        <label class="breed-chk"><input type="checkbox" id="breed-ownedonly" checked> 보유 드래곤만 사용</label>
+        <span class="breed-own" id="breed-own"></span>
+      </div>
+    </div>
+    <div class="breed-pickup" id="breed-pickup"></div>
+
+    <!-- 목표로 찾기 / n배럭 (목표 선택 공유) -->
+    <div class="bmode-panel" id="bpanel-select">
+      <p class="breed-hint" id="bselect-hint"></p>
+      <div class="breed-combo">
+        <input type="search" id="btarget-input" class="search" placeholder="목표 드래곤 검색 후 선택…" autocomplete="off">
+        <div class="combo-list" id="btarget-list" hidden></div>
+      </div>
+      <div class="breed-chosen" id="btarget-chosen"></div>
+      <div class="brk-ctrl" id="brk-ctrl" hidden><span class="brk-lbl">배럭 수</span>
+        <select id="brk-n" class="brk-sel"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div id="bselect-result" class="breed-result"></div>
+    </div>
+
+    <!-- 부모로 찾기 -->
+    <div class="bmode-panel" id="bpanel-parent" hidden>
+      <p class="breed-hint">부모 두 마리를 고르면 나올 수 있는 모든 드래곤과 확률·교배/부화 시간을 보여줍니다.</p>
+      <div class="breed-parents">
+        <div class="breed-combo">
+          <span class="bp-label">부모 1</span>
+          <input type="search" id="bp1-input" class="search" placeholder="부모 1 검색…" autocomplete="off">
+          <div class="combo-list" id="bp1-list" hidden></div>
+          <div class="bp-chosen" id="bp1-chosen"></div>
+        </div>
+        <span class="breed-x">×</span>
+        <div class="breed-combo">
+          <span class="bp-label">부모 2</span>
+          <input type="search" id="bp2-input" class="search" placeholder="부모 2 검색…" autocomplete="off">
+          <div class="combo-list" id="bp2-list" hidden></div>
+          <div class="bp-chosen" id="bp2-chosen"></div>
+        </div>
+      </div>
+      <div id="bparent-result" class="breed-result"></div>
+    </div>
+  </section>
+
+  <!-- ============ TYPES (상성) ============ -->
+  <section id="view-types" class="view">
+    <p class="breed-hint">인게임 '속성 상성 계산기' 기준 14속성 상성표입니다. 속성을 누르면 <b>공격·방어 상성 요약</b>이 표시되고 표에서 강조됩니다. 표는 <b>세로=공격 속성, 가로=방어(받는) 속성</b>입니다.</p>
+    <div class="chips" id="type-chips"></div>
+    <div id="type-focus" class="type-focus"></div>
+    <div class="type-legend" id="type-legend"></div>
+    <div class="table-wrap"><table class="data-table type-matrix" id="type-matrix"></table></div>
+  </section>
+
+  <!-- ============ REQUEST (수정사항 요청) ============ -->
+  <section id="view-request" class="view">
+    <div id="request-body"></div>
+  </section>
+
+  <!-- ============ COLLECTION ============ -->
+  <section id="view-collection" class="view">
+    <div id="collection-body"></div>
+  </section>
+
+  <!-- ============ CODEX ============ -->
+  <section id="view-codex" class="view">
+    <div class="codex-block">
+      <h2>속성·등급별 드래곤 분포</h2>
+      <div class="table-wrap"><table class="data-table" id="dsummary"></table></div>
+    </div>
+    <div class="codex-block">
+      <h2>속성별 보주 분포</h2>
+      <div class="table-wrap"><table class="data-table" id="osummary"></table></div>
+    </div>
+    <div class="codex-block">
+      <h2>상태이상 · 날씨 용어</h2>
+      <div class="term-grid" id="term-grid"></div>
+    </div>
+    <div class="codex-block">
+      <h2>자료 안내</h2>
+      <ul class="notes" id="notes-list"></ul>
+    </div>
+  </section>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modal-close" aria-label="닫기">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-backdrop" id="auth-modal" hidden>
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+    <button class="modal-close" id="auth-close" aria-label="닫기">✕</button>
+    <h2 class="auth-title">로그인 / 회원가입</h2>
+    <p class="auth-sub">로그인은 <b>선택</b>입니다. 로그인하면 보유 현황이 클라우드에 저장되어 어느 기기에서나 이어지고, 지금까지 게스트로 모은 현황도 자동으로 합쳐집니다.</p>
+    <form id="auth-form" class="auth-form">
+      <input type="email" id="auth-email" class="search" placeholder="이메일" autocomplete="email" required>
+      <input type="password" id="auth-password" class="search" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" minlength="6" required>
+      <div class="auth-actions">
+        <button type="submit" id="auth-signin" class="btn btn-primary">로그인</button>
+        <button type="button" id="auth-signup" class="btn">회원가입</button>
+      </div>
+      <button type="button" id="auth-guest" class="btn btn-ghost">로그인 없이 게스트로 계속</button>
+      <p class="auth-msg" id="auth-msg"></p>
+    </form>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>드래곤빌리지3 비공식 정보 도감 · 인게임 캡처(2026-06-14) 기반 정리</p>
+    <p class="muted">드래곤 121종 · 보주 72종 · 특성 57종. 본 사이트는 팬 제작 자료이며 원작 권리는 각 권리자에게 있습니다.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/breed.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
