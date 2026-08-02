@@ -17,7 +17,8 @@ const state = {
   orbs:{search:"",grade:"",type:"",sort:"power",element:""},
   abilities:{search:""},
   breeding:{mode:"target",level:28,ownedOnly:true,targets:[],p1:null,p2:null,pickup:[],pickupEdit:false,barracks:3},
-  types:{focus:""}
+  types:{focus:""},
+  request:{type:"dragon",msg:null}
 };
 
 /* ===== 유틸 ===== */
@@ -242,6 +243,48 @@ function renderAbilities(){
   });
 }
 
+/* ===== 데이터 파생(자동 갱신): 특성·요약표 ===== */
+function rebuildAbilities(){
+  const prev={}; (DB.abilities||[]).forEach(a=>prev[a.name]=a.effect);
+  const g={};
+  DB.dragons.forEach(d=>{
+    const nm=d.ability; if(!nm) return;
+    (g[nm]=g[nm]||{effect:null,dragons:[]});
+    g[nm].dragons.push(d.name);
+    if(g[nm].effect==null) g[nm].effect = prev[nm] || d.abilityEffect || "";
+  });
+  DB.abilities=Object.keys(g).map(nm=>{
+    const ds=[...new Set(g[nm].dragons)].sort((a,b)=>a.localeCompare(b,"ko"));
+    return {name:nm,effect:g[nm].effect,count:ds.length,dragons:ds};
+  }).sort((a,b)=>(b.count-a.count)||a.name.localeCompare(b.name,"ko"));
+  const el=$("#cnt-abilities"); if(el) el.textContent=DB.abilities.length;
+}
+function computeDragonSummary(){
+  const els=ELEMENT_ORDER.filter(e=>DB.dragons.some(d=>d.element===e));
+  const rows=els.map(e=>{
+    const L=DB.dragons.filter(d=>d.element===e);
+    return {"주속성":e,"드래곤 수":L.length,
+      "전설":L.filter(d=>d.grade==="전설").length,"영웅":L.filter(d=>d.grade==="영웅").length,"희귀":L.filter(d=>d.grade==="희귀").length,
+      "물리":L.filter(d=>d.attackType==="물리").length,"마법":L.filter(d=>d.attackType==="마법").length};
+  });
+  const all=DB.dragons;
+  rows.push({"주속성":"합계","드래곤 수":all.length,
+    "전설":all.filter(d=>d.grade==="전설").length,"영웅":all.filter(d=>d.grade==="영웅").length,"희귀":all.filter(d=>d.grade==="희귀").length,
+    "물리":all.filter(d=>d.attackType==="물리").length,"마법":all.filter(d=>d.attackType==="마법").length});
+  return rows;
+}
+function computeOrbSummary(){
+  const special=["여명","황혼","신성","혼돈"];
+  const els=ELEMENT_ORDER.filter(e=>DB.orbs.some(o=>o.element===e));
+  return els.map(e=>{
+    const L=DB.orbs.filter(o=>o.element===e);
+    return {"속성":e,"보주 수":L.length,
+      "전설":L.filter(o=>o.grade==="전설").length,"영웅":L.filter(o=>o.grade==="영웅").length,"희귀":L.filter(o=>o.grade==="희귀").length,
+      "마법 공격기 보유":L.some(o=>o.type==="마법")?"O":"X",
+      "비고":special.includes(e)?"특수 속성(희귀 등급 없음)":null};
+  });
+}
+
 /* ====================== CODEX ====================== */
 function renderCodex(){
   const tbl=(el,rows)=>{
@@ -257,8 +300,8 @@ function renderCodex(){
         }).join("")}</tr>`;
       }).join("")}</tbody>`;
   };
-  tbl("#dsummary",DB.dragon_summary);
-  tbl("#osummary",DB.orb_summary);
+  tbl("#dsummary",computeDragonSummary());
+  tbl("#osummary",computeOrbSummary());
   $("#term-grid").innerHTML=DB.terms.map(t=>`<div class="term"><b>${esc(t["용어"])}</b><span>${esc(t["효과"])}</span></div>`).join("");
   const notes=[...DB.dragon_notes,...DB.orb_notes].filter(n=>!String(n).startsWith("시트 구성"));
   $("#notes-list").innerHTML=[...new Set(notes)].map(n=>`<li>${esc(n)}</li>`).join("");
@@ -732,6 +775,174 @@ function typeSectionFor(d){
     ${els.length>1?'<small class="muted">다속성 드래곤은 인게임에서 속성별 상성이 합산 적용됩니다. 위는 속성별 개별 표기입니다.</small>':''}</div>`;
 }
 
+/* ====================== 수정사항 요청 ====================== */
+const RQ_GRADES=["전설","영웅","희귀"];
+// 결과 확률(%) → 고정확률 드래곤 티어 예측
+function predictTier(pct){
+  if(!pct||pct<=0) return null;
+  const bp=[{p:0.75,t:8,fp:75},{p:1.5,t:7,fp:150},{p:3,t:6,fp:300},{p:5,t:5,fp:500},{p:10,t:5,fp:1000}];
+  let best=bp[0],bd=1e9; for(const b of bp){const d=Math.abs(b.p-pct);if(d<bd){bd=d;best=b;}}
+  const clean=bd<=Math.max(0.12,best.p*0.1);
+  return { tier:best.t, fixedProportion:best.fp, clean,
+    note: clean?`고정확률 드래곤 추정 → 티어 ${best.t} (fixed ${best.fp}bp, 최대 ${best.p}%)`
+      :`가장 가까운 고정확률 티어 ${best.t}(${best.p}%). 값이 정확히 안 맞으면 가중치(portion) 드래곤일 수 있어 티어 추정이 부정확합니다.` };
+}
+// 승인된 요청을 도감에 병합
+async function mergeApproved(){
+  let list=[]; try{ list=await Store.loadApproved(); }catch{}
+  let added=0;
+  for(const s of (list||[])){
+    if(!s||!s.payload||!s.payload.name) continue;
+    if(s.type==="dragon"){
+      const d=s.payload;
+      if(!DB.dragons.some(x=>x.name===d.name)){
+        d.subElements=d.subElements||[]; d.stats=d.stats||{};
+        d.total=d.total||Object.values(d.stats).reduce((a,b)=>a+(+b||0),0);
+        d.__approved=true; DB.dragons.push(d); added++;
+      }
+    } else if(s.type==="orb"){
+      if(!DB.orbs.some(x=>x.name===s.payload.name)){ s.payload.__approved=true; DB.orbs.push(s.payload); added++; }
+    }
+  }
+  rebuildAbilities();
+  return added;
+}
+function refreshAll(){
+  $("#cnt-dragons").textContent=DB.dragons.length;
+  $("#cnt-orbs").textContent=DB.orbs.length;
+  renderDragons(); renderOrbs(); renderAbilities(); renderCollection(); renderCodex();
+}
+function reqMsg(t,err){ state.request.msg={t,err:!!err}; const m=$("#req-msg"); if(m){m.textContent=t;m.classList.toggle("err",!!err);} }
+
+/* ---- 폼 빌더 ---- */
+function rqField(label,inner,hint){ return `<label class="rq-field"><span class="rq-lbl">${label}</span>${inner}${hint?`<small class="rq-hint">${hint}</small>`:""}</label>`; }
+function rqSel(id,opts,ph){ return `<select id="${id}">${ph?`<option value="">${ph}</option>`:""}${opts.map(o=>`<option>${o}</option>`).join("")}</select>`; }
+function rqInp(id,type,ph){ return `<input id="${id}" type="${type||'text'}" placeholder="${ph||''}" autocomplete="off">`; }
+function dragonForm(){
+  const els=ELEMENT_ORDER;
+  return `<div class="rq-grid">
+    ${rqField("이름",rqInp("rq-d-name","text","예: 원더 드래곤"))}
+    ${rqField("등급",rqSel("rq-d-grade",RQ_GRADES,"선택"))}
+    ${rqField("주 속성",rqSel("rq-d-el",els,"선택"))}
+    ${rqField("부속성1",rqSel("rq-d-sub1",els,"없음"))}
+    ${rqField("부속성2",rqSel("rq-d-sub2",els,"없음"))}
+    ${rqField("공격 타입",rqSel("rq-d-atk-type",["물리","마법"],"선택"))}
+    ${rqField("획득 방법",rqInp("rq-d-source","text","예: 교배 / 뽑기 / 레이드"))}
+  </div>
+  <div class="rq-sub">능력치 (Lv.50·5성)</div>
+  <div class="rq-grid stats6">
+    ${rqField("체력",rqInp("rq-d-hp","number"))}${rqField("공격",rqInp("rq-d-atk","number"))}${rqField("방어",rqInp("rq-d-def","number"))}
+    ${rqField("마력",rqInp("rq-d-mag","number"))}${rqField("저항",rqInp("rq-d-res","number"))}${rqField("속도",rqInp("rq-d-spd","number"))}
+  </div>
+  <div class="rq-sub">특성 · 스킬</div>
+  <div class="rq-grid">
+    ${rqField("특성 이름",rqInp("rq-d-ability"))}
+    ${rqField("평타 이름",rqInp("rq-d-basic"))}
+    ${rqField("필살기 이름",rqInp("rq-d-ult"))}
+    ${rqField("필살기 타입",rqSel("rq-d-ult-type",["물리","마법","변화"],"선택"))}
+    ${rqField("필살기 명중",rqInp("rq-d-acc","number"))}
+    ${rqField("필살기 위력",rqInp("rq-d-power","number"))}
+  </div>
+  ${rqField("특성 효과",`<textarea id="rq-d-abilityEffect" rows="2"></textarea>`)}
+  ${rqField("필살기 효과",`<textarea id="rq-d-ultEffect" rows="2"></textarea>`)}
+  <div class="rq-sub">교배 확률 (선택) — 부모 조합과 결과 확률로 티어 예측</div>
+  <div class="rq-grid">
+    ${rqField("부모1",rqInp("rq-d-p1"))}${rqField("부모2",rqInp("rq-d-p2"))}
+    ${rqField("결과 확률(%)",rqInp("rq-d-resultPct","number","예: 1.5"))}
+  </div>
+  <div class="rq-predict"><button type="button" class="btn btn-sm" id="rq-predict-btn">티어 예측</button> <span id="rq-predict-out" class="muted"></span></div>`;
+}
+function orbForm(){
+  return `<div class="rq-grid">
+    ${rqField("이름",rqInp("rq-o-name","text","예: 안식의 소각 보주"))}
+    ${rqField("속성",rqSel("rq-o-el",ELEMENT_ORDER,"선택"))}
+    ${rqField("등급",rqSel("rq-o-grade",RQ_GRADES,"선택"))}
+    ${rqField("스킬 이름",rqInp("rq-o-skill"))}
+    ${rqField("스킬 타입",rqSel("rq-o-type",["물리","마법","변화"],"선택"))}
+    ${rqField("명중",rqInp("rq-o-acc","number"))}
+    ${rqField("위력",rqInp("rq-o-power","number","변화는 비워두세요"))}
+    ${rqField("비용",rqInp("rq-o-cost","number"))}
+    ${rqField("능력치 보너스",rqInp("rq-o-bonus","text","예: +22"))}
+    ${rqField("획득처",rqInp("rq-o-source","text","예: 뽑기"))}
+  </div>
+  ${rqField("효과",`<textarea id="rq-o-effect" rows="2"></textarea>`)}`;
+}
+function buildDragonPayload(){
+  const v=id=>{const e=$("#"+id);return e?e.value.trim():"";}, num=id=>{const n=+v(id);return isNaN(n)?0:n;};
+  const subs=[v("rq-d-sub1"),v("rq-d-sub2")].filter(x=>x&&x!=="없음");
+  const stats={hp:num("rq-d-hp"),atk:num("rq-d-atk"),def:num("rq-d-def"),mag:num("rq-d-mag"),res:num("rq-d-res"),spd:num("rq-d-spd")};
+  const p={element:v("rq-d-el"),subElements:subs,grade:v("rq-d-grade"),name:v("rq-d-name"),attackType:v("rq-d-atk-type"),
+    stats,total:Object.values(stats).reduce((a,b)=>a+b,0),ability:v("rq-d-ability"),abilityEffect:v("rq-d-abilityEffect"),
+    basicAttack:v("rq-d-basic"),ultimate:v("rq-d-ult"),ultimateType:v("rq-d-ult-type"),accuracy:num("rq-d-acc"),power:num("rq-d-power"),
+    ultimateEffect:v("rq-d-ultEffect"),source:v("rq-d-source")};
+  const rp=v("rq-d-resultPct");
+  if(v("rq-d-p1")||v("rq-d-p2")||rp) p.breedingHint={parent1:v("rq-d-p1"),parent2:v("rq-d-p2"),resultPct:+rp||null,predict:predictTier(+rp)};
+  return p;
+}
+function buildOrbPayload(){
+  const v=id=>{const e=$("#"+id);return e?e.value.trim():"";}, num=id=>{const n=+v(id);return isNaN(n)?0:n;};
+  const type=v("rq-o-type");
+  return {element:v("rq-o-el"),grade:v("rq-o-grade"),name:v("rq-o-name"),skill:v("rq-o-skill"),type,
+    accuracy:num("rq-o-acc"),power:type==="변화"?"-":num("rq-o-power"),cost:num("rq-o-cost"),
+    statBonus:v("rq-o-bonus")||"",effect:v("rq-o-effect"),source:v("rq-o-source")};
+}
+const dragSumLine=p=>`${esc(p.element||'?')}${(p.subElements||[]).length?'·'+esc(p.subElements.join('·')):''} / ${esc(p.grade||'')} / ${esc(p.attackType||'')} · 특성 ${esc(p.ability||'-')} · 필살기 ${esc(p.ultimate||'-')}`;
+const orbSumLine=p=>`${esc(p.element||'?')} / ${esc(p.grade||'')} / ${esc(p.skill||'-')} (${esc(p.type||'')}) 명중 ${esc(p.accuracy)} 위력 ${esc(p.power)}`;
+
+async function loadReqPending(){
+  const box=$("#req-pending"); if(!box) return;
+  const list=await Store.loadPending();
+  if(!list.length){ box.innerHTML=`<p class="muted">대기 중인 요청이 없습니다.</p>`; return; }
+  box.innerHTML=list.map(x=>`<div class="req-item">
+    <div class="req-item-h"><b>${esc(x.payload.name||'(이름없음)')}</b> <span class="badge badge-atk">${x.type==='dragon'?'드래곤':'보주'}</span> <small class="muted">${esc(x.created_by||'')}</small></div>
+    <div class="req-item-b">${x.type==='dragon'?dragSumLine(x.payload):orbSumLine(x.payload)}</div>
+    <div class="req-item-a"><button class="btn btn-sm btn-primary" data-appr="${x.id}">승인·등록</button><button class="btn btn-sm" data-rej="${x.id}">반려</button></div>
+  </div>`).join("");
+  box.querySelectorAll("[data-appr]").forEach(b=>b.onclick=async()=>{ b.disabled=true; const {error}=await Store.reviewSubmission(b.dataset.appr,"approved"); if(error){reqMsg("승인 실패: "+error.message,true);b.disabled=false;return;} await mergeApproved(); refreshAll(); loadReqPending(); reqMsg("승인·등록 완료 — 도감에 반영됨.",false); });
+  box.querySelectorAll("[data-rej]").forEach(b=>b.onclick=async()=>{ b.disabled=true; await Store.reviewSubmission(b.dataset.rej,"rejected"); loadReqPending(); });
+}
+async function loadReqMine(){
+  const box=$("#req-mine"); if(!box) return;
+  const list=await Store.loadMine();
+  if(!list.length){ box.innerHTML=""; return; }
+  const st={pending:"⏳ 대기",approved:"✅ 승인",rejected:"❌ 반려"};
+  box.innerHTML=`<h3>내 요청 (${list.length})</h3>`+list.map(x=>`<div class="req-mine-row"><span>${esc(x.payload.name||'')} <small class="muted">${x.type==='dragon'?'드래곤':'보주'}</small></span><span class="req-st ${x.status}">${st[x.status]||x.status}</span></div>`).join("");
+}
+
+function renderRequest(){
+  const box=$("#request-body"); if(!box) return;
+  const s=state.request, admin=Store.isAdmin(), loggedIn=Store.isLoggedIn(), configured=Store.isConfigured();
+  let html=`<div class="req-hero"><h2>수정사항 요청</h2>
+    <p class="sub">신규 드래곤·보주 정보를 제출하면 <b>관리자 승인 후 도감에 등록</b>됩니다.${admin?' <b class="req-adm">관리자 계정: 즉시 등록됩니다.</b>':''}</p></div>`;
+  if(!configured){ box.innerHTML=html+`<div class="req-note warn">Supabase가 설정되지 않아 요청 기능을 쓸 수 없습니다.</div>`; return; }
+  if(!loggedIn){ box.innerHTML=html+`<div class="req-note">요청을 보내려면 <a href="#" id="req-login">로그인</a>이 필요합니다.</div>`;
+    const lg=$("#req-login"); if(lg) lg.onclick=e=>{e.preventDefault();openAuth();}; return; }
+  html+=`<div class="req-type"><button class="req-tbtn${s.type==='dragon'?' active':''}" data-rt="dragon">🐲 드래곤</button><button class="req-tbtn${s.type==='orb'?' active':''}" data-rt="orb">🔮 보주</button></div>`;
+  html+=`<div class="req-form">${s.type==='dragon'?dragonForm():orbForm()}</div>`;
+  html+=rqField("메모(선택)",`<textarea id="rq-note" rows="1" placeholder="출처/비고"></textarea>`);
+  html+=`<div class="req-actions"><button class="btn btn-primary" id="req-submit">${admin?'바로 등록':'요청 보내기'}</button><span class="req-msg${s.msg&&s.msg.err?' err':''}" id="req-msg">${s.msg?esc(s.msg.t):''}</span></div>`;
+  if(admin) html+=`<div class="req-admin"><h3>대기 중인 요청</h3><div id="req-pending" class="req-list">불러오는 중…</div></div>`;
+  html+=`<div id="req-mine" class="req-mine"></div>`;
+  box.innerHTML=html;
+  $$("#request-body .req-tbtn").forEach(b=>b.onclick=()=>{ s.type=b.dataset.rt; s.msg=null; renderRequest(); });
+  const pb=$("#rq-predict-btn"); if(pb) pb.onclick=()=>{ const pr=predictTier(+($("#rq-d-resultPct").value)); $("#rq-predict-out").textContent = pr?pr.note:"결과 확률을 입력하세요."; };
+  $("#req-submit").onclick=async()=>{
+    const type=s.type, payload=type==="dragon"?buildDragonPayload():buildOrbPayload();
+    if(!payload.name){ reqMsg("이름을 입력하세요.",true); return; }
+    if(!payload.element||!payload.grade){ reqMsg("속성과 등급을 선택하세요.",true); return; }
+    const dup=type==="dragon"?DB.dragons.some(d=>d.name===payload.name):DB.orbs.some(o=>o.name===payload.name);
+    if(dup){ reqMsg("이미 도감에 있는 이름입니다.",true); return; }
+    reqMsg("전송 중…");
+    const { error, approved }=await Store.submitRequest(type,payload,$("#rq-note")?$("#rq-note").value.trim():"");
+    if(error){ reqMsg("실패: "+error.message+" (submissions 테이블 SQL 필요)",true); return; }
+    if(approved){ await mergeApproved(); refreshAll(); s.msg={t:"등록 완료 — 도감에 반영되었습니다.",err:false}; }
+    else s.msg={t:"요청을 보냈습니다. 관리자 승인 후 등록됩니다.",err:false};
+    renderRequest();
+  };
+  if(admin) loadReqPending();
+  loadReqMine();
+}
+
 /* ====================== AUTH UI ====================== */
 function renderAuthBox(){
   const box=$("#auth-box");
@@ -811,8 +1022,10 @@ async function init(){
 
   // 저장소(인증·보유현황) 초기화 + 변경 반영
   await Store.init();
+  // 승인된 요청을 도감에 병합(재배포 없이 반영) + 특성 자동 재생성
+  try{ await mergeApproved(); }catch(e){ rebuildAbilities(); }
   Store.on("change",()=>{ renderDragons(); renderCollection(); renderBreeding(); });
-  Store.on("auth",()=>{ renderAuthBox(); renderCollection(); renderBreeding(); });
+  Store.on("auth",()=>{ renderAuthBox(); renderCollection(); renderBreeding(); renderRequest(); });
 
   // 카운트
   $("#cnt-dragons").textContent=DB.dragons.length;
@@ -836,7 +1049,7 @@ async function init(){
 
   renderAuthBox();
   renderDragons(); renderOrbs(); renderAbilities(); renderCodex(); renderCollection();
-  renderTypes();
+  renderTypes(); renderRequest();
   await initBreeding();
 }
 document.addEventListener("DOMContentLoaded",init);

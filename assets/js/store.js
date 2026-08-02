@@ -110,6 +110,52 @@ const Store = (() => {
     return { error };
   };
 
+  /* ---- 수정사항 요청(제보) — submissions 테이블 ---- */
+  const isLoggedIn = () => !!user;
+  // 요청 제출. 관리자면 즉시 승인 등록. 로그인 필요.
+  const submitRequest = async (type, payload, note) => {
+    if (!user) return { error: { message: "로그인이 필요합니다." } };
+    const auto = isAdmin();
+    const { error } = await client.from("submissions").insert({
+      type, payload, note: note || null, created_by: user.email,
+      status: auto ? "approved" : "pending",
+      reviewed_at: auto ? new Date().toISOString() : null
+    });
+    return { error, approved: auto };
+  };
+  // 승인된 요청 로드(공개 읽기) → 도감 병합용
+  const loadApproved = async () => {
+    if (!(configured && client)) return [];
+    const { data, error } = await client.from("submissions")
+      .select("type,payload").eq("status", "approved");
+    if (error) { console.warn("승인목록 로드 실패:", error.message); return []; }
+    return data || [];
+  };
+  // 대기 목록(관리자)
+  const loadPending = async () => {
+    if (!isAdmin()) return [];
+    const { data, error } = await client.from("submissions")
+      .select("id,type,payload,note,created_by,created_at")
+      .eq("status", "pending").order("created_at", { ascending: true });
+    if (error) { console.warn(error.message); return []; }
+    return data || [];
+  };
+  // 내 요청 목록
+  const loadMine = async () => {
+    if (!user) return [];
+    const { data } = await client.from("submissions")
+      .select("id,type,payload,status,created_at")
+      .eq("created_by", user.email).order("created_at", { ascending: false });
+    return data || [];
+  };
+  // 승인/반려(관리자)
+  const reviewSubmission = async (id, status) => {
+    if (!isAdmin()) return { error: { message: "관리자만 가능합니다." } };
+    const { error } = await client.from("submissions")
+      .update({ status, reviewed_at: new Date().toISOString() }).eq("id", id);
+    return { error };
+  };
+
   const init = async () => {
     owned = loadLocal();
     if (!configured) return;
@@ -128,5 +174,6 @@ const Store = (() => {
 
   return { init, on, isConfigured, isCloud, getUser, has, list, size,
            toggle, clearAll, signUp, signIn, signOut,
-           isAdmin, loadPickup, savePickup, ADMIN_EMAIL, DEFAULT_PICKUP };
+           isAdmin, isLoggedIn, loadPickup, savePickup, ADMIN_EMAIL, DEFAULT_PICKUP,
+           submitRequest, loadApproved, loadPending, loadMine, reviewSubmission };
 })();

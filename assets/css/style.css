@@ -413,3 +413,41 @@ select:focus{outline:none;border-color:var(--accent)}
 .subset-list{display:flex;flex-direction:column;gap:8px}
 .subset-size{background:var(--accent);color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px;flex:0 0 auto}
 .sim-slot-no{font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px}
+
+/* ====================== 수정사항 요청 ====================== */
+.req-hero{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.req-hero h2{font-size:20px;margin-bottom:4px}
+.req-hero .sub{color:var(--muted);font-size:13px}
+.req-adm{color:var(--gold)}
+.req-note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;color:var(--muted);font-size:14px}
+.req-note.warn{border-color:#e8a06a;color:#c2540c}
+.req-type{display:flex;gap:8px;margin-bottom:14px}
+.req-tbtn{background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer}
+.req-tbtn.active{background:linear-gradient(135deg,var(--accent),#5a4fd6);color:#fff;border-color:transparent}
+.req-form{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.rq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.rq-grid.stats6{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
+.rq-sub{font-size:12px;font-weight:800;color:var(--accent);margin:16px 0 8px;padding-left:8px;border-left:3px solid var(--accent)}
+.rq-field{display:flex;flex-direction:column;gap:4px;font-size:12px}
+.rq-lbl{color:var(--muted);font-weight:700}
+.rq-field input,.rq-field select,.rq-field textarea,.req-form textarea{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;width:100%}
+.rq-field textarea,.req-form>.rq-field textarea{margin-top:0}
+.rq-field input:focus,.rq-field select:focus,.rq-field textarea:focus{outline:none;border-color:var(--accent)}
+.req-form>.rq-field{margin-top:10px}
+.rq-hint{color:var(--muted);font-size:11px}
+.rq-predict{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px}
+.req-actions{display:flex;align-items:center;gap:12px;margin-top:14px}
+.req-msg{font-size:13px;color:var(--accent2)}
+.req-msg.err{color:#d92d2d}
+.req-admin{margin-top:26px}
+.req-admin h3,.req-mine h3{font-size:16px;margin-bottom:10px;border-left:3px solid var(--gold);padding-left:10px}
+.req-list{display:flex;flex-direction:column;gap:10px}
+.req-item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.req-item-h{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.req-item-b{color:var(--muted);font-size:12px;margin-bottom:8px}
+.req-item-a{display:flex;gap:8px}
+.req-mine{margin-top:22px}
+.req-mine-row{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 13px;margin-bottom:7px;font-size:13px}
+.req-st{font-size:12px;font-weight:700}
+.req-st.approved{color:var(--accent2)} .req-st.pending{color:var(--gold)} .req-st.rejected{color:#d92d2d}
